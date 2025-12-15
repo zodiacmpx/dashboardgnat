@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operativo - Maqueta Centrality</title>
+    <style>
+        :root {
+            --primary-blue: #003366; /* Azul Saesa */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background-color: var(--bg-color); color: var(--text-color); font-size: 0.85rem; }
+
+        /* --- Header & Filters --- */
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .header-left h1 { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        
+        .filters-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-group label { font-size: 0.7rem; color: #ccc; margin-bottom: 2px; }
+        .filter-group select {
+            background: #fff; border: none; padding: 4px; border-radius: 3px; font-size: 0.8rem; min-width: 100px;
+        }
+
+        .action-btn {
+            background-color: #fff; color: var(--primary-blue); border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+
+        /* --- Main Layout Grid --- */
+        .dashboard-container {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 220px 1fr; /* Sidebar fija, resto flexible */
+            grid-template-rows: auto auto auto;
+            gap: 15px;
+            max-width: 100%;
+        }
+
+        /* --- KPI Cards Row --- */
+        .kpi-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .kpi-card { text-align: center; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .kpi-value { font-size: 1.8rem; font-weight: bold; color: var(--primary-blue); }
+        .kpi-label { font-size: 0.8rem; color: #666; margin-top: 5px; }
+        .kpi-icon { position: absolute; right: 10px; top: 10px; opacity: 0.2; font-size: 1.5rem; }
+
+        /* --- Sidebar (Map) --- */
+        .sidebar-map {
+            grid-row: 2 / 4; /* Span across middle and bottom sections */
+            background-color: #2c3e50; /* Dark bg simulating map */
+            color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .map-title { padding: 10px; background: rgba(0,0,0,0.3); font-weight: bold; }
+        
+        .map-points {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            justify-content: space-around;
+        }
+
+        .map-point { display: flex; align-items: center; gap: 10px; }
+        .point-dot { width: 20px; height: 20px; background: var(--warning); border-radius: 50%; border: 2px solid white; }
+        .point-label { font-weight: bold; text-shadow: 1px 1px 2px black; }
+
+        /* --- Middle Content Area --- */
+        .middle-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Table area wide, right panels narrow */
+            grid-template-rows: auto auto;
+            gap: 15px;
+        }
+
+        /* Gestion Brigadas Table */
+        .brigade-panel { grid-column: 1 / 2; overflow-x: auto; }
+        .panel-header { font-size: 1rem; font-weight: bold; color: var(--primary-blue); margin-bottom: 10px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { background: #f8f9fa; text-align: left; padding: 8px; border-bottom: 2px solid var(--border-color); color: #555; }
+        td { padding: 6px 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        
+        .status-badge {
+            display: inline-block; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 0.7rem; width: 100%; text-align: center;
+        }
+        .bg-red { background-color: var(--danger); }
+        .bg-green { background-color: var(--success); }
+        .bg-yellow { background-color: var(--warning); color: #333; }
+        
+        /* Right Side Panels */
+        .right-panels {
+            grid-column: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .complexity-card { display: flex; align-items: center; justify-content: space-between; }
+        .gauge-placeholder { width: 60px; height: 30px; background: linear-gradient(90deg, green, yellow, red); border-radius: 30px 30px 0 0; margin: 0 auto;}
+
+        .mini-list-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .mini-list-item span:last-child { font-weight: bold; }
+        .text-red { color: var(--danger); }
+        .text-warning { color: #d39e00; }
+
+        /* Charts Area */
+        .charts-container {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .chart-placeholder {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding-top: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+        .bar { width: 10%; background: #007bff; border-radius: 3px 3px 0 0; position: relative; }
+        .bar span { position: absolute; top: -15px; width: 100%; text-align: center; font-size: 0.6rem; }
+
+        /* --- Bottom Details Table --- */
+        .bottom-details {
+            grid-column: 2 / 3; /* Aligns right of sidebar */
+        }
+        
+        .scrollable-table { max-height: 250px; overflow-y: auto; }
+
+        /* Helpers */
+        .title-sm { font-size: 0.9rem; font-weight: bold; color: var(--primary-blue); margin-bottom: 8px; }
+        .flex-row { display: flex; gap: 10px; }
+        .w-full { width: 100%; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header & Segmentadores -->
+    <header>
+        <div class="header-left">
+            <h1>🛠️ Grupo Saesa <span style="font-weight: 300; font-size: 0.9em; margin-left: 10px;">Gestión Operativa Diaria</span></h1>
+        </div>
+        
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>CCD</label>
+                <select><option>Todas</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Zonal</label>
+                <select><option>Todas</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Comuna</label>
+                <select><option>Todas</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Brigada</label>
+                <select><option>Todas</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Analista</label>
+                <select><option>Todas</option></select>
+            </div>
+        </div>
+
+        <button class="action-btn">Levantar Incidencias 📋</button>
+    </header>
+
+    <div class="dashboard-container">
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <div class="card kpi-card">
+                <div class="kpi-value">446</div>
+                <div class="kpi-label">Tareas Asignadas</div>
+                <div class="kpi-icon">📋</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="kpi-value">79</div>
+                <div class="kpi-label">Tareas Ejecutadas</div>
+                <div class="kpi-icon">✅</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="kpi-value text-success">1069 %</div> <!-- Color from image -->
+                <div class="kpi-label">% Eficiencia Operativa</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="kpi-value text-warning">96 %</div>
+                <div class="kpi-label">Ocupación Proyectada</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="kpi-value">28</div>
+                <div class="kpi-label">TME</div>
+                <div class="kpi-icon">⏱️</div>
+            </div>
+        </div>
+
+        <!-- Sidebar Map Simulation -->
+        <div class="card sidebar-map">
+            <div class="map-title">Fallas Pendientes</div>
+            <div class="map-points">
+                <div class="map-point" style="margin-left: 20px;"><div class="point-dot"></div> <span class="point-label">Angol</span></div>
+                <div class="map-point" style="margin-left: 10px;"><div class="point-dot"></div> <span class="point-label">Lota</span></div>
+                <div class="map-point" style="margin-left: 30px;"><div class="point-dot"></div> <span class="point-label">Valdivia</span></div>
+                <div class="map-point" style="margin-left: 25px;"><div class="point-dot"></div> <span class="point-label">Osorno</span></div>
+                <div class="map-point" style="margin-left: 40px;"><div class="point-dot"></div> <span class="point-label">Pto. Montt</span></div>
+                <div class="map-point" style="margin-left: 15px;"><div class="point-dot"></div> <span class="point-label">Chiloe</span></div>
+                <div class="map-point" style="margin-left: 50px;"><div class="point-dot"></div> <span class="point-label">Aysen</span></div>
+            </div>
+            <div style="padding: 10px; background: #fff; color: #333; text-align: center; margin-top: auto; cursor: pointer;">
+                Borrar Filtros
+            </div>
+        </div>
+
+        <!-- Middle Content -->
+        <div class="middle-content">
+            
+            <!-- Brigade Management Panel -->
+            <div class="card brigade-panel">
+                <div class="panel-header">Panel Gestión Brigadas</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brigada</th>
+                            <th>1er Arribo</th>
+                            <th>Tareas Asign.</th>
+                            <th>Tareas Ejec.</th>
+                            <th>% Eficiencia</th>
+                            <th>Ocupación (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BBOO 2157 LAUTARO</td>
+                            <td>00:00</td>
+                            <td>6</td>
+                            <td>0</td>
+                            <td><span class="status-badge bg-red">0 %</span></td>
+                            <td>0 %</td>
+                        </tr>
+                        <tr>
+                            <td>BBOO T99 OSORNO</td>
+                            <td>00:27</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td><span class="status-badge bg-red">31 %</span></td>
+                            <td>12 %</td>
+                        </tr>
+                        <tr>
+                            <td>BBOO 2092 PTO</td>
+                            <td>00:34</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td><span class="status-badge bg-green">429 %</span></td>
+                            <td>8 %</td>
+                        </tr>
+                        <tr>
+                            <td>BBOO 2029 LICAN</td>
+                            <td>00:47</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td><span class="status-badge bg-green">143 %</span></td>
+                            <td>3 %</td>
+                        </tr>
+                         <tr>
+                            <td>BBOO T59 RIO NEGRO</td>
+                            <td>00:52</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td><span class="status-badge bg-red">34 %</span></td>
+                            <td>12 %</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right Small Panels -->
+            <div class="right-panels">
+                <!-- Complexity -->
+                <div class="card complexity-card">
+                    <div class="title-sm" style="color:red">Complejidad Operacional</div>
+                    <div style="text-align: center;">
+                        <div class="gauge-placeholder"></div>
+                        <small>Alta</small>
+                    </div>
+                </div>
+
+                <div class="flex-row w-full">
+                    <!-- Desconexiones (Placeholder) -->
+                    <div class="card w-full">
+                        <div class="title-sm">Desconexiones</div>
+                        <div style="height: 50px; background: #fafafa;"></div>
+                    </div>
+                    
+                    <!-- Critical Tasks & Failures -->
+                    <div class="card w-full">
+                        <div class="title-sm">Tareas Críticas Hoy</div>
+                        <div class="mini-list-item"><span>Prioritario</span> <span class="text-success">1</span></div>
+                        <div class="mini-list-item"><span>Regulatorio</span> <span>131</span></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                     <div class="title-sm">Fallas Pendientes</div>
+                     <div class="mini-list-item"><span>VALDIVIA</span> <span class="text-red">28</span></div>
+                     <div class="mini-list-item"><span>PUERTO MONTT</span> <span class="text-red">23</span></div>
+                     <div class="mini-list-item"><span>MALLECO</span> <span class="text-warning">14</span></div>
+                     <div class="mini-list-item" style="border-top: 2px solid #ccc; margin-top: 5px;"><span>Total</span> <span>110</span></div>
+                </div>
+            </div>
+
+            <!-- Charts Row (Inside Middle Content) -->
+            <div class="charts-container">
+                <div class="card">
+                    <div class="title-sm" style="color: #c0392b;">Tiempo Improductivo Brigadas</div>
+                    <div class="chart-placeholder">
+                        <div class="bar" style="height: 80%; background-color: #3498db;"><span>99,00</span></div>
+                        <div class="bar" style="height: 30%; background-color: #3498db;"><span>30,00</span></div>
+                        <div class="bar" style="height: 24%; background-color: #3498db;"><span>24,00</span></div>
+                        <div class="bar" style="height: 5%; background-color: #3498db;"><span>4,25</span></div>
+                        <div class="bar" style="height: 2%; background-color: #3498db;"><span>1,75</span></div>
+                    </div>
+                    <small style="display:block; text-align: center; margin-top:5px; color:#999">OSORNO - CABRERO - MALLECO - CHILOE</small>
+                </div>
+                <div class="card">
+                    <div class="title-sm" style="color: #c0392b;">Concurrencia ante Fallas</div>
+                    <div class="chart-placeholder">
+                        <div class="bar" style="height: 33%; background-color: #007bff;"><span>33%</span></div>
+                        <div class="bar" style="height: 29%; background-color: #007bff;"><span>29%</span></div>
+                        <div class="bar" style="height: 17%; background-color: #007bff;"><span>17%</span></div>
+                        <div class="bar" style="height: 10%; background-color: #007bff;"><span>10%</span></div>
+                        <div class="bar" style="height: 7%; background-color: #007bff;"><span>7%</span></div>
+                    </div>
+                     <small style="display:block; text-align: center; margin-top:5px; color:#999">OSORNO - CABRERO - PTO MONTT - VALDIVIA</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Detail Table -->
+        <div class="card bottom-details">
+            <div class="panel-header">Análisis Tareas</div>
+            <div class="scrollable-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Despachador</th>
+                            <th>Brigada</th>
+                            <th>Tarea</th>
+                            <th>Tipo</th>
+                            <th>Subtipo</th>
+                            <th>Estado</th>
+                            <th>Comuna</th>
+                            <th>Asignación</th>
+                            <th>Ejec.</th>
+                            <th>% Efic.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pedro T...</td>
+                            <td>BBOO 2143 PAD...</td>
+                            <td>0016334304...</td>
+                            <td><a href="#">Comercial</a></td>
+                            <td>EnlaC-Cambio de...</td>
+                            <td><span class="status-badge bg-yellow">Pendiente</span></td>
+                            <td>FREIRE</td>
+                            <td>8:31</td>
+                            <td style="background-color: var(--success); color: white;">En proceso</td>
+                            <td class="bg-red">0 %</td>
+                        </tr>
+                        <tr>
+                            <td>Pedro T...</td>
+                            <td>BBOO 2143 PAD...</td>
+                            <td>0016838012...</td>
+                            <td><a href="#">Comercial</a></td>
+                            <td>EnlaC-VL-Calidad...</td>
+                            <td><span class="status-badge bg-yellow">Pendiente</span></td>
+                            <td>CUNCO</td>
+                            <td>8:31</td>
+                            <td style="background-color: var(--success); color: white;">En proceso</td>
+                            <td class="bg-red">0 %</td>
+                        </tr>
+                        <tr>
+                            <td>Camila ...</td>
+                            <td>BBOO 2164 LOS...</td>
+                            <td>0017284958...</td>
+                            <td><a href="#">Comercial</a></td>
+                            <td>EnlaC-Cambio de...</td>
+                            <td><span class="status-badge bg-yellow">Pendiente</span></td>
+                            <td>TRAIGUEN</td>
+                            <td>8:12</td>
+                            <td style="background-color: var(--success); color: white;">En proceso</td>
+                            <td class="bg-red">0 %</td>
+                        </tr>
+                         <tr>
+                            <td>Pablo R...</td>
+                            <td>BBOO 3002 LAG...</td>
+                            <td>0017654311...</td>
+                            <td><a href="#">Comercial</a></td>
+                            <td>EnlaC-Cambio de...</td>
+                            <td><span class="status-badge bg-yellow">Pendiente</span></td>
+                            <td>LA UNION</td>
+                            <td>8:29</td>
+                            <td style="background-color: var(--success); color: white;">En proceso</td>
+                            <td class="bg-red">0 %</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
