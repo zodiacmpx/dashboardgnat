@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro de Operaciones Unificado - Dashboard</title>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -14,9 +12,6 @@
             --primary-color: #003366; 
             --secondary-color: #005596;
             --accent-color: #FF6600; 
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-color: #333;
@@ -31,7 +26,7 @@
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
-            overflow: hidden; /* Evita que el body crezca infinitamente */
+            overflow: hidden; 
         }
 
         /* HEADER */
@@ -46,16 +41,14 @@
             flex-shrink: 0;
         }
 
-        .header h3 { font-size: 1.1rem; }
         .filters { display: flex; gap: 10px; }
-        select, button.action-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background-color: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.85rem;}
-        option { background-color: var(--primary-color); }
-        .action-btn { background-color: var(--success-color); border: none; font-weight: bold; }
+        select, button { padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8rem;}
 
         /* KPI ROW */
         .kpi-container {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            /* CAMBIO CRÍTICO: minmax(0, 1fr) evita que el contenido empuje la celda */
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 10px;
             padding: 10px 15px;
             flex-shrink: 0;
@@ -67,35 +60,41 @@
             border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border-top: 3px solid transparent;
+            /* Asegura que el texto no desborde */
+            overflow: hidden;
+            white-space: nowrap;
         }
         .kpi-card.blue { border-color: var(--secondary-color); }
-        .kpi-card.green { border-color: var(--success-color); }
+        .kpi-card.green { border-color: #28a745; }
         .kpi-card.orange { border-color: var(--accent-color); }
-        .kpi-card.red { border-color: var(--danger-color); }
-        .kpi-value { font-size: 1.3rem; font-weight: bold; }
+        .kpi-card.red { border-color: #dc3545; }
+        
+        .kpi-value { font-size: 1.4rem; font-weight: bold; }
         .kpi-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
 
         /* MAIN GRID */
         .main-grid {
             display: grid;
-            grid-template-columns: 260px 1fr 260px; /* Sidebar Izq | Central | Sidebar Der */
+            /* CAMBIO CRÍTICO: Definimos anchos fijos para laterales y minmax(0, 1fr) para el centro */
+            grid-template-columns: 260px minmax(0, 1fr) 260px;
             gap: 15px;
             padding: 0 15px 15px 15px;
             flex-grow: 1;
-            overflow: hidden; /* Importante para contener el scroll */
-            min-height: 0; /* Truco de Flexbox/Grid para permitir encogimiento */
+            overflow: hidden; 
+            min-height: 0; 
         }
 
         .col-left, .col-center, .col-right {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            overflow-y: auto; /* Scroll individual */
+            overflow-y: auto; 
             padding-right: 5px;
-            min-height: 0; /* Truco vital */
+            min-height: 0; 
+            /* Importante: evita que la columna crezca horizontalmente */
+            width: 100%;
         }
 
-        /* CARD STYLES */
         .card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
@@ -103,62 +102,60 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
-            width: 100%; /* Asegura que no desborde */
+            /* Importante: el ancho debe ser contenido */
+            width: 100%;
+            min-width: 0;
         }
 
         .card-header {
             font-size: 0.85rem; font-weight: bold; color: var(--primary-color);
-            margin-bottom: 8px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px;
+            margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px;
         }
 
-        /* --- CORRECCIÓN DE GRÁFICOS --- */
-        /* Esta clase fuerza una altura exacta. El gráfico NO puede crecer más que esto. */
+        /* --- CLASE MAESTRA PARA ARREGLAR GRÁFICOS --- */
         .fixed-chart-height {
             position: relative;
-            height: 180px; /* Altura rígida en píxeles */
-            width: 100%;
+            /* Altura fija estricta */
+            height: 180px; 
+            /* Ancho restringido al 99% para evitar redondeo de pixeles que active scroll */
+            width: 99%; 
+            margin: 0 auto;
             overflow: hidden;
         }
         
         .fixed-chart-height-small {
             position: relative;
-            height: 140px; 
-            width: 100%;
+            height: 130px; 
+            width: 99%;
+            margin: 0 auto;
             overflow: hidden;
         }
 
-        /* ESTILOS DE TABLAS Y LISTAS */
-        .list-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; }
-        .badge { padding: 1px 5px; border-radius: 8px; font-size: 0.7rem; color: white; font-weight: bold; }
-        .badge.red { background-color: var(--danger-color); }
-        .badge.orange { background-color: var(--accent-color); }
-
-        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        th { text-align: left; color: #666; padding: 4px; position: sticky; top: 0; background: white; z-index: 1;}
-        td { padding: 4px; border-bottom: 1px solid #f0f0f0; }
-        
-        .progress-bar-bg { width: 100%; background: #eee; height: 4px; border-radius: 3px; margin-top: 2px; }
-        .progress-bar-fill { height: 100%; border-radius: 3px; }
-        
-        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; display: inline-block;}
-        .status-pill.multable { background: #fee2e2; color: #991b1b; }
-        .status-pill.normal { background: #d1fae5; color: #065f46; }
-
-        .calendar-mini { width: 100%; text-align: center; font-size: 0.7rem; }
-        .calendar-mini td { padding: 2px; }
-        .calendar-mini .active { background: var(--accent-color); color: white; border-radius: 50%; }
-        
-        .alert-item { display: flex; align-items: center; gap: 8px; padding: 6px; background: #fff5f5; border-left: 3px solid var(--danger-color); margin-bottom: 4px; font-size: 0.75rem; }
-
+        /* GRID PARA FILA DE GRÁFICOS */
         .chart-row { 
             display: grid; 
-            grid-template-columns: 1fr 1fr; 
+            /* CAMBIO CRÍTICO: minmax(0, 1fr) es la clave */
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); 
             gap: 12px; 
-            /* Importante: No dejar que el grid se adapte al contenido */
             min-height: 200px; 
         }
 
+        /* Estilos menores */
+        .list-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; }
+        .badge { padding: 1px 5px; border-radius: 8px; font-size: 0.7rem; color: white; font-weight: bold; background: #666; }
+        .badge.red { background-color: #dc3545; }
+        .badge.orange { background-color: var(--accent-color); }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; table-layout: fixed; }
+        th { text-align: left; color: #666; padding: 4px; position: sticky; top: 0; background: white; z-index: 1;}
+        td { padding: 4px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
+        .progress-bar-bg { width: 100%; background: #eee; height: 4px; border-radius: 3px; margin-top: 2px; }
+        .progress-bar-fill { height: 100%; border-radius: 3px; }
+        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; background: #eee; }
+        
+        .calendar-mini { width: 100%; text-align: center; font-size: 0.7rem; }
+        .active { background: var(--accent-color); color: white; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -167,9 +164,8 @@
     <div class="header">
         <div><h3><i class="fa-solid fa-bolt"></i> Grupo Saesa | COU</h3></div>
         <div class="filters">
-            <select id="zonaFilter"><option>Zonal: Todas</option><option>Valdivia</option><option>Osorno</option></select>
-            <select id="brigadaFilter"><option>Brigada: Todas</option><option>Liviana</option><option>Pesada</option></select>
-            <button class="action-btn">Incidencia +</button>
+            <select><option>Zonal: Todas</option></select>
+            <button>Incidencia +</button>
         </div>
     </div>
 
@@ -189,7 +185,7 @@
         <!-- IZQUIERDA -->
         <div class="col-left">
             <div class="card">
-                <div class="card-header"><i class="fa-solid fa-triangle-exclamation"></i> Pendientes</div>
+                <div class="card-header">Pendientes</div>
                 <div class="list-item"><span>Valdivia</span> <span class="badge red">28</span></div>
                 <div class="list-item"><span>Pto. Montt</span> <span class="badge red">23</span></div>
                 <div class="list-item"><span>Osorno</span> <span class="badge orange">13</span></div>
@@ -198,7 +194,8 @@
             <div class="card">
                 <div class="card-header">Complejidad</div>
                 <div class="fixed-chart-height-small">
-                    <canvas id="gaugeChart"></canvas>
+                    <!-- Canvas style inline para doble seguridad -->
+                    <canvas id="gaugeChart" style="width: 100%; height: 100%;"></canvas>
                 </div>
                 <div style="text-align: center; color: orange; font-weight: bold; margin-top: -30px; font-size: 0.8rem;">MEDIA-ALTA</div>
             </div>
@@ -209,10 +206,7 @@
                     <thead><tr><th>ID</th><th>Efic.</th><th>Oc.</th></tr></thead>
                     <tbody>
                         <tr><td>2157</td><td>0%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:#ccc"></div></div></td><td>0%</td></tr>
-                        <tr><td>T99</td><td>31%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:31%; background:#dc3545"></div></div></td><td>12%</td></tr>
                         <tr><td>2092</td><td>98%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:98%; background:#28a745"></div></div></td><td>88%</td></tr>
-                        <tr><td>T59</td><td>65%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:65%; background:#ffc107"></div></div></td><td>50%</td></tr>
-                        <tr><td>1102</td><td>80%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%; background:#28a745"></div></div></td><td>75%</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -220,19 +214,18 @@
 
         <!-- CENTRO -->
         <div class="col-center">
+            <!-- AQUÍ ESTABA EL PROBLEMA PRINCIPAL -->
             <div class="chart-row">
                 <div class="card">
                     <div class="card-header">Improductivo (min)</div>
-                    <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
                     <div class="fixed-chart-height">
-                        <canvas id="barChart"></canvas>
+                        <canvas id="barChart" style="width: 100%; height: 100%;"></canvas>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">Distribución</div>
-                    <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
                     <div class="fixed-chart-height">
-                        <canvas id="doughnutChart"></canvas>
+                        <canvas id="doughnutChart" style="width: 100%; height: 100%;"></canvas>
                     </div>
                 </div>
             </div>
@@ -241,13 +234,13 @@
                 <div class="card-header">Minuta Comercial</div>
                 <div style="overflow-y: auto;">
                     <table>
-                        <thead><tr><th>Tarea</th><th>Tipo</th><th>Días</th><th>Estado</th></tr></thead>
+                        <thead><tr><th>Tarea</th><th>Tipo</th><th>Días</th><th>Est</th></tr></thead>
                         <tbody>
-                            <tr><td>0018687</td><td>Contrato BT1</td><td><span class="badge red">12</span></td><td><span class="status-pill multable">Multable</span></td></tr>
-                            <tr><td>0018732</td><td>Contrato BT1</td><td><span class="badge orange">9</span></td><td><span class="status-pill multable">Riesgo</span></td></tr>
-                            <tr><td>0018796</td><td>Conexión</td><td><span class="badge" style="background:#007bff">3</span></td><td><span class="status-pill normal">Normal</span></td></tr>
-                            <tr><td>0018811</td><td>Desc. Solicitud</td><td>2</td><td><span class="status-pill normal">Normal</span></td></tr>
-                            <tr><td>0018900</td><td>Empalme</td><td>1</td><td><span class="status-pill normal">Normal</span></td></tr>
+                            <tr><td>0018687</td><td>Contrato BT1</td><td><span class="badge red">12</span></td><td><span class="status-pill">Multable</span></td></tr>
+                            <tr><td>0018732</td><td>Contrato BT1</td><td><span class="badge orange">9</span></td><td><span class="status-pill">Riesgo</span></td></tr>
+                            <tr><td>0018796</td><td>Conexión</td><td><span class="badge" style="background:#007bff">3</span></td><td><span class="status-pill">Normal</span></td></tr>
+                            <tr><td>0018811</td><td>Desc. Solicitud</td><td>2</td><td><span class="status-pill">Normal</span></td></tr>
+                            <tr><td>0018900</td><td>Empalme</td><td>1</td><td><span class="status-pill">Normal</span></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -283,21 +276,14 @@
 
             <div class="card">
                 <div class="card-header">Alertas</div>
-                <div class="alert-item"><i class="fa-solid fa-clock"></i><div><strong>Vencimiento</strong><br>49 casos</div></div>
-                <div class="alert-item" style="border-left-color:var(--accent-color)"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-color)"></i><div><strong>Críticos</strong><br>15 asignados</div></div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">Zona Crítica</div>
-                <div class="list-item"><span>Sta Barbara</span> <strong>4</strong></div>
-                <div class="list-item"><span>Lonquimay</span> <strong>3</strong></div>
+                <div class="list-item"><span>Vencimiento</span> <strong>49</strong></div>
+                <div class="list-item"><span>Críticos</span> <strong>15</strong></div>
             </div>
 
             <div class="card" style="flex: 1;">
                 <div class="card-header">Concurrencia</div>
-                <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
                 <div class="fixed-chart-height">
-                    <canvas id="concurrenceChart"></canvas>
+                    <canvas id="concurrenceChart" style="width: 100%; height: 100%;"></canvas>
                 </div>
             </div>
         </div>
@@ -305,14 +291,14 @@
 
     <!-- SCRIPTS -->
     <script>
-        // CONFIGURACIÓN PARA QUE LOS GRÁFICOS NO REDIMENSIONEN EL CONTENEDOR
-        Chart.defaults.maintainAspectRatio = false; // El gráfico se estira para llenar el div fijo
+        // CONFIGURACIÓN CRÍTICA DE CHART.JS
+        Chart.defaults.maintainAspectRatio = false; // El gráfico obedecerá al DIV padre
         Chart.defaults.responsive = true;
         Chart.defaults.font.family = "'Segoe UI', sans-serif";
         Chart.defaults.font.size = 10;
         Chart.defaults.color = '#666';
 
-        // 1. Gauge
+        // DATOS DE EJEMPLO
         new Chart(document.getElementById('gaugeChart'), {
             type: 'doughnut',
             data: {
@@ -322,7 +308,6 @@
             options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, aspectRatio: 2 }
         });
 
-        // 2. Bar Chart
         new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
@@ -339,7 +324,6 @@
             }
         });
 
-        // 3. Doughnut
         new Chart(document.getElementById('doughnutChart'), {
             type: 'doughnut',
             data: {
@@ -353,7 +337,6 @@
             }
         });
 
-        // 4. Concurrence
         new Chart(document.getElementById('concurrenceChart'), {
             type: 'bar',
             data: {
