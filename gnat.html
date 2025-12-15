@@ -3,540 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Centrality - Grupo Saesa</title>
+    <title>Grupo Saesa - Centrality Dashboard Unificado</title>
     <style>
         :root {
             --primary-blue: #003366;
-            --saesa-cyan: #0099cc;
-            --bg-color: #f0f2f5;
+            --secondary-blue: #0056b3;
+            --accent-cyan: #0099cc;
+            --bg-body: #f4f7fa;
             --card-bg: #ffffff;
-            --text-color: #333;
-            --border-color: #e0e0e0;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --purple: #6f42c1;
-            --orange: #fd7e14;
-            --pink: #e83e8c;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            
+            /* Status Colors */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-size: 0.8rem; height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; /* Evita scroll en la pagina principal, solo interno */
+        }
 
-        /* --- Header & Global Filters --- */
+        /* --- 1. Header & Filters --- */
         header {
-            background-color: var(--primary-blue);
+            background: var(--primary-blue);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            height: 50px;
             z-index: 10;
         }
 
-        .header-left h1 { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .filters-bar { display: flex; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 4px; }
-        .filter-group { display: flex; flex-direction: column; }
-        .filter-group label { font-size: 0.65rem; color: #ccc; margin-bottom: 2px; }
-        .filter-group select { background: #fff; border: none; padding: 3px; border-radius: 3px; font-size: 0.75rem; min-width: 100px; }
-        .action-btn { background-color: #fff; color: var(--primary-blue); border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .brand h1 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .brand span { font-weight: 300; opacity: 0.9; font-size: 0.9em; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 10px; }
 
-        /* --- Navigation Tabs --- */
-        .nav-tabs {
-            background-color: #fff;
-            padding: 0 20px;
-            display: flex;
-            gap: 20px;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        .filters-container { display: flex; gap: 8px; }
+        .filter-select {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;
+            cursor: pointer; transition: 0.2s;
         }
-        .nav-tab {
-            padding: 12px 10px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        .nav-tab:hover { color: var(--primary-blue); background: #f9f9f9; }
-        .nav-tab.active { color: var(--primary-blue); border-bottom: 3px solid var(--primary-blue); }
+        .filter-select:hover { background: rgba(255,255,255,0.2); }
+        .filter-select option { color: #333; }
 
-        /* --- Main Content Area --- */
-        .main-content {
+        .btn-action {
+            background: var(--success); color: white; border: none; 
+            padding: 5px 12px; border-radius: 4px; font-weight: 600; font-size: 0.75rem;
+            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- 2. Main Dashboard Grid --- */
+        .dashboard-grid {
             flex: 1;
-            padding: 15px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: 240px 1fr 280px; /* Sidebar | Main | Right Panel */
+            grid-template-rows: auto 1fr; /* Top Stats | Content */
+            gap: 12px;
             overflow-y: auto;
-            position: relative;
         }
-        
-        .tab-pane { display: none; height: 100%; }
-        .tab-pane.active { display: block; }
 
-        /* --- Shared Components --- */
-        .card { background: var(--card-bg); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 10px; border: 1px solid var(--border-color); position: relative; }
-        .title-sm { font-size: 0.85rem; font-weight: bold; color: var(--text-color); margin-bottom: 10px; display: block; }
-        .flex-row { display: flex; gap: 10px; }
-        .w-full { width: 100%; }
-        .h-full { height: 100%; }
-
-        /* Tables */
-        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-        th { background: #f8f9fa; text-align: left; padding: 6px; border-bottom: 2px solid var(--border-color); color: #555; position: sticky; top: 0; z-index: 1; }
-        td { padding: 5px 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .scroll-table { overflow-y: auto; max-height: 100%; }
-
-        /* Status & Utilities */
-        .status-circle { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6rem; font-weight: bold; margin: 0 auto; }
-        .circle-red { background: var(--danger); }
-        .circle-yellow { background: var(--warning); color: #333; }
-        .circle-green { background: var(--success); }
-        .text-red { color: var(--danger); }
-        .text-blue { color: #007bff; }
-        
-        /* --- VIEW 1: GESTIÓN OPERATIVA --- */
-        .grid-v1 {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            grid-template-rows: auto auto 1fr;
-            gap: 15px;
-            height: 100%;
-        }
-        .v1-kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-        .v1-map { grid-row: 2 / 4; background: #2c3e50; color: white; display: flex; flex-direction: column; }
-        .v1-middle { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
-        .v1-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        
-        /* --- VIEW 2: MINUTA COMERCIAL --- */
-        .grid-v2 {
-            display: grid;
-            grid-template-rows: auto 1fr 1fr;
-            gap: 15px;
-            height: 100%;
-        }
-        .v2-kpis { display: flex; gap: 15px; justify-content: space-between; }
-        .kpi-shadow { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #ccc; text-align: center; padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .v2-middle { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; overflow: hidden; }
-        .v2-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr; gap: 15px; min-height: 200px; }
-
-        /* Visual 2 Charts */
-        .bar-container { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.7rem; }
-        .bar-label { width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
-        .bar-track { flex: 1; background: #eee; height: 15px; border-radius: 2px; position: relative; }
-        .bar-fill { height: 100%; background: #007bff; border-radius: 2px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: white; font-size: 0.65rem; }
-        
-        .treemap { display: flex; flex-wrap: wrap; height: 100%; width: 100%; border: 1px solid white; }
-        .tm-item { border: 1px solid white; display: flex; flex-direction: column; padding: 5px; color: white; font-weight: bold; font-size: 0.7rem; }
-
-        /* --- VIEW 3: GESTIÓN PT --- */
-        .grid-v3 {
-            display: grid;
-            grid-template-columns: 180px 1fr; /* Local Sidebar */
-            gap: 0; /* Sidebar is attached */
-            height: 100%;
-            background: white;
+        /* --- Common Card Styles --- */
+        .card {
+            background: var(--card-bg);
             border-radius: 8px;
-            overflow: hidden;
             border: 1px solid var(--border-color);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .v3-sidebar { background: var(--primary-blue); padding: 15px; color: white; }
-        .v3-sidebar select { width: 100%; margin-bottom: 15px; padding: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; }
-        .v3-sidebar option { color: #333; }
-        .v3-content { background: #f9f9f9; padding: 15px; display: grid; grid-template-rows: auto 1fr; gap: 15px; overflow-y: auto; }
+        .card-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+        .card-title { font-size: 0.75rem; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-body { padding: 10px; flex: 1; overflow-y: auto; position: relative; }
+
+        /* --- Top KPI Bar (Unified) --- */
+        .kpi-bar {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .kpi-card {
+            background: white; padding: 10px; border-radius: 6px; border-left: 4px solid var(--primary-blue);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: center;
+        }
+        .kpi-val { font-size: 1.4rem; font-weight: 800; line-height: 1; color: var(--text-main); }
+        .kpi-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
         
-        .v3-top-row { display: grid; grid-template-columns: 1.5fr 1fr 1.5fr; gap: 15px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #ddd; border: 1px solid #ddd; }
-        .cal-day { background: white; height: 40px; font-size: 0.7rem; padding: 2px; position: relative; }
-        .cal-header { background: #f0f0f0; text-align: center; font-weight: bold; padding: 2px; }
-        .day-red { background: #ff4d4d; color: white; }
+        .kpi-warn { border-color: var(--warning); }
+        .kpi-danger { border-color: var(--danger); }
+        .kpi-success { border-color: var(--success); }
+
+        /* --- Column 1: Operational (Left) --- */
+        .col-ops { display: flex; flex-direction: column; gap: 12px; }
         
-        .gauge-container { position: relative; width: 100%; height: 120px; display: flex; justify-content: center; overflow: hidden; }
-        .gauge-arch { width: 160px; height: 80px; background: linear-gradient(90deg, #90EE90 0%, #FFFFE0 50%, #FFFFE0 100%); border-radius: 80px 80px 0 0; position: relative; margin-top: 20px; }
-        .gauge-needle { width: 4px; height: 70px; background: #555; position: absolute; left: 50%; bottom: 0; transform-origin: bottom center; transform: translateX(-50%) rotate(10deg); }
+        .map-widget {
+            background: #2c3e50; color: white; height: 250px; border-radius: 8px; position: relative;
+            display: flex; flex-direction: column;
+        }
+        .map-point { display: flex; align-items: center; gap: 8px; padding: 5px 15px; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .gauge-mini { width: 100px; height: 50px; background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444); border-radius: 50px 50px 0 0; margin: 10px auto; position: relative; }
+        .gauge-arrow { width: 2px; height: 45px; background: #333; position: absolute; left: 50%; bottom: 0; transform-origin: bottom center; transform: rotate(45deg); }
+
+        /* --- Column 2: Tactical Center --- */
+        .col-center { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+        
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 160px; }
+        
+        /* Minimalist Charts */
+        .bar-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 100%; padding-top: 10px; }
+        .bar-col { width: 15%; background: var(--info); border-radius: 3px 3px 0 0; position: relative; transition: height 0.5s; }
+        .bar-col span { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: bold; }
+        
+        .treemap-mini { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; height: 100%; }
+        .tm-box { display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: bold; padding: 5px; flex-direction: column; }
+        
+        /* Unified Table Section */
+        .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 100%; min-height: 250px; }
+        
+        /* --- Column 3: Planning (Right) --- */
+        .col-right { display: flex; flex-direction: column; gap: 12px; }
+        
+        .calendar-mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; font-size: 0.65rem; text-align: center; }
+        .c-head { color: var(--text-muted); padding-bottom: 5px; }
+        .c-day { padding: 4px; background: #f8f9fa; border-radius: 3px; }
+        .c-day.active { background: var(--danger); color: white; font-weight: bold; }
+        
+        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.75rem; }
+        .list-item:last-child { border: none; }
+        .tag { padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 700; }
+
+        /* --- Tables --- */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .data-table th { position: sticky; top: 0; background: #f1f5f9; padding: 6px; text-align: left; color: #64748b; font-weight: 600; z-index: 1;}
+        .data-table td { padding: 6px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+        .data-table tr:hover { background: #f8fafc; }
+        
+        .badge { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; }
+
+        /* Utilities */
+        .text-red { color: var(--danger); }
+        .bg-red { background: var(--danger); color: white; }
+        .bg-yel { background: var(--warning); color: #333; }
+        .bg-blu { background: var(--info); color: white; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
 
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header>
-        <div class="header-left">
-            <h1>🛠️ Grupo Saesa <span style="font-weight: 300; font-size: 0.9em; margin-left: 10px;">Control Operativo Centralizado</span></h1>
+        <div class="brand">
+            <h1>🛠️ Grupo Saesa <span>Centro de Operaciones Unificado</span></h1>
         </div>
-        <div class="filters-bar">
-            <div class="filter-group"><label>CCD</label><select><option>Todas</option></select></div>
-            <div class="filter-group"><label>Zonal</label><select><option>Todas</option></select></div>
-            <div class="filter-group"><label>Comuna</label><select><option>Todas</option></select></div>
-            <div class="filter-group"><label>Brigada</label><select><option>Todas</option></select></div>
-            <div class="filter-group"><label>Analista</label><select><option>Todas</option></select></div>
-            <div class="filter-group"><label>Tipo</label><select><option>Todas</option></select></div>
+        <div class="filters-container">
+            <select class="filter-select"><option>Zonal: Todas</option><option>Osorno</option><option>Valdivia</option></select>
+            <select class="filter-select"><option>Comuna: Todas</option></select>
+            <select class="filter-select"><option>Brigada: Todas</option></select>
+            <select class="filter-select"><option>Tipo Tarea: Todas</option></select>
+            <button class="btn-action">Levantar Incidencia +</button>
         </div>
-        <button class="action-btn">Levantar Incidencias 📋</button>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('tab1', this)">Gestión Operativa Diaria</div>
-        <div class="nav-tab" onclick="switchTab('tab2', this)">Minuta Asignación Comercial</div>
-        <div class="nav-tab" onclick="switchTab('tab3', this)">Gestión PT</div>
-    </nav>
+    <div class="dashboard-grid">
+        
+        <!-- KPI ROW (Unificado) -->
+        <div class="kpi-bar">
+            <!-- Operativos -->
+            <div class="kpi-card">
+                <div class="kpi-val" style="color: var(--primary-blue);">446</div>
+                <div class="kpi-lbl">Tareas Asignadas</div>
+            </div>
+            <div class="kpi-card kpi-success">
+                <div class="kpi-val" style="color: var(--success);">1069%</div>
+                <div class="kpi-lbl">Eficiencia Operativa</div>
+            </div>
+            <!-- Comerciales -->
+            <div class="kpi-card kpi-warn">
+                <div class="kpi-val" style="color: var(--warning);">26</div>
+                <div class="kpi-lbl">Prioritarios Hoy</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-val">231</div>
+                <div class="kpi-lbl">Total en Bandeja</div>
+            </div>
+            <!-- PT -->
+            <div class="kpi-card kpi-danger">
+                <div class="kpi-val" style="color: var(--danger);">25</div>
+                <div class="kpi-lbl">Índice PT Diario</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-val">21.6</div>
+                <div class="kpi-lbl">Días Promedio</div>
+            </div>
+        </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
+        <!-- COL 1: OPERACIONES (Izquierda) -->
+        <div class="col-ops">
+            <!-- Mapa -->
+            <div class="card map-widget">
+                <div style="padding:10px; font-weight:bold; background:rgba(0,0,0,0.2);">📍 Fallas Pendientes</div>
+                <div style="flex:1; padding:10px; display:flex; flex-direction:column; justify-content:space-evenly;">
+                    <div class="map-point"><div class="dot" style="background:var(--danger)"></div> Valdivia <span style="margin-left:auto; font-weight:bold;">28</span></div>
+                    <div class="map-point"><div class="dot" style="background:var(--danger)"></div> Pto. Montt <span style="margin-left:auto; font-weight:bold;">23</span></div>
+                    <div class="map-point"><div class="dot" style="background:var(--warning)"></div> Malleco <span style="margin-left:auto; font-weight:bold;">14</span></div>
+                    <div class="map-point"><div class="dot" style="background:var(--warning)"></div> Osorno <span style="margin-left:auto; font-weight:bold;">13</span></div>
+                </div>
+            </div>
 
-        <!-- ================= TAB 1: GESTIÓN OPERATIVA ================= -->
-        <div id="tab1" class="tab-pane active">
-            <div class="grid-v1">
-                <!-- KPIs -->
-                <div class="v1-kpis">
-                    <div class="card" style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-blue);">446</div>
-                        <div style="font-size: 0.7rem; color: #666;">Tareas asignadas</div>
+            <!-- Complejidad -->
+            <div class="card" style="min-height: 150px;">
+                <div class="card-header"><span class="card-title">Complejidad Operacional</span></div>
+                <div class="card-body" style="text-align: center;">
+                    <div class="gauge-mini"><div class="gauge-arrow"></div></div>
+                    <div style="font-weight:bold; color:var(--warning); margin-top:5px;">MEDIA-ALTA</div>
+                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">Factores: Clima, Tráfico</div>
+                </div>
+            </div>
+
+            <!-- Panel Brigadas -->
+            <div class="card" style="flex:1;">
+                <div class="card-header"><span class="card-title">Estado Brigadas</span></div>
+                <div class="card-body" style="padding:0;">
+                    <table class="data-table">
+                        <thead><tr><th>Brigada</th><th>Efic.</th><th>Ocup.</th></tr></thead>
+                        <tbody>
+                            <tr><td>BBOO 2157</td><td class="text-red">0%</td><td>0%</td></tr>
+                            <tr><td>BBOO T99</td><td class="text-red">31%</td><td>12%</td></tr>
+                            <tr><td>BBOO 2092</td><td style="color:var(--success)">429%</td><td>8%</td></tr>
+                            <tr><td>BBOO 2029</td><td style="color:var(--success)">143%</td><td>3%</td></tr>
+                             <tr><td>BBOO T59</td><td class="text-red">34%</td><td>12%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- COL 2: TÁCTICO & COMERCIAL (Centro) -->
+        <div class="col-center">
+            
+            <!-- Fila Gráficos -->
+            <div class="charts-row">
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Tiempo Improductivo</span></div>
+                    <div class="card-body">
+                        <div class="bar-chart">
+                            <div class="bar-col" style="height:90%; background:var(--primary-blue)"><span>99</span></div>
+                            <div class="bar-col" style="height:30%; background:var(--secondary-blue)"><span>30</span></div>
+                            <div class="bar-col" style="height:24%; background:var(--accent-cyan)"><span>24</span></div>
+                            <div class="bar-col" style="height:10%; background:var(--info)"><span>4</span></div>
+                            <div class="bar-col" style="height:5%; background:#ccc"><span>1</span></div>
+                        </div>
                     </div>
-                    <div class="card" style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-blue);">79</div>
-                        <div style="font-size: 0.7rem; color: #666;">Tareas Ejecutadas</div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Distribución Tareas</span></div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="treemap-mini">
+                            <div class="tm-box" style="background:#e83e8c; grid-row: 1 / 3;">Reposiciones<br>93</div>
+                            <div class="tm-box" style="background:#003366;">Regulatorio<br>62</div>
+                            <div class="tm-box" style="background:#fd7e14;">Prioritario<br>26</div>
+                        </div>
                     </div>
-                    <div class="card" style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);">1069 %</div>
-                        <div style="font-size: 0.7rem; color: #666;">% Eficiencia</div>
+                </div>
+            </div>
+
+            <!-- Tablas de Datos -->
+            <div class="tables-grid">
+                <!-- Tabla Minuta Comercial -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Minuta Asignación Comercial</span>
+                        <span class="tag bg-blu">En Proceso</span>
                     </div>
-                    <div class="card" style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning);">96 %</div>
-                        <div style="font-size: 0.7rem; color: #666;">Ocupación Proy.</div>
-                    </div>
-                    <div class="card" style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-blue);">28</div>
-                        <div style="font-size: 0.7rem; color: #666;">TME</div>
+                    <div class="card-body" style="padding:0;">
+                        <table class="data-table">
+                            <thead><tr><th>Tarea</th><th>Tipo</th><th>Días</th><th>Estado</th></tr></thead>
+                            <tbody>
+                                <tr><td>0018687...</td><td>Contrato BT1</td><td><span class="tag bg-red">12</span></td><td>Multable</td></tr>
+                                <tr><td>0018018...</td><td>Contrato BT1</td><td><span class="tag bg-red">11</span></td><td>Multable</td></tr>
+                                <tr><td>0018732...</td><td>Contrato BT1</td><td><span class="tag bg-yel">9</span></td><td>Multable</td></tr>
+                                <tr><td>0018729...</td><td>Desc. Solicitud</td><td><span class="tag bg-yel">9</span></td><td>Multable</td></tr>
+                                <tr><td>0018796...</td><td>Conexión</td><td><span class="tag bg-blu">3</span></td><td>Normal</td></tr>
+                                <tr><td>0018811...</td><td>Desc. Solicitud</td><td><span class="tag bg-blu">2</span></td><td>Normal</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Sidebar Map -->
-                <div class="card v1-map">
-                    <div style="padding: 10px; background: rgba(0,0,0,0.3); font-weight: bold;">Fallas Pendientes</div>
-                    <div style="flex:1; padding: 20px; display: flex; flex-direction: column; justify-content: space-around;">
-                        <div class="flex-row"><span class="status-circle circle-yellow" style="width:10px; height:10px;"></span> Angol</div>
-                        <div class="flex-row"><span class="status-circle circle-yellow" style="width:10px; height:10px;"></span> Lota</div>
-                        <div class="flex-row"><span class="status-circle circle-yellow" style="width:10px; height:10px;"></span> Valdivia</div>
-                        <div class="flex-row"><span class="status-circle circle-yellow" style="width:10px; height:10px;"></span> Pto. Montt</div>
-                        <div class="flex-row"><span class="status-circle circle-yellow" style="width:10px; height:10px;"></span> Chiloe</div>
+                <!-- Tabla Análisis PT -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Gestión y Análisis PT</span>
+                        <span class="tag bg-yel">Pendiente</span>
                     </div>
-                    <button style="width:100%; padding:10px; border:none; background:#eee; cursor:pointer;">Borrar Filtros</button>
-                </div>
-
-                <!-- Middle & Bottom -->
-                <div style="display:flex; flex-direction:column; gap:15px; grid-column: 2 / -1;">
-                    <div class="v1-middle">
-                        <div class="card scroll-table" style="max-height: 250px;">
-                            <span class="title-sm">Panel Gestión Brigadas</span>
-                            <table>
-                                <thead><tr><th>Brigada</th><th>1er Arribo</th><th>Tareas</th><th>% Efic.</th><th>Ocup.</th></tr></thead>
-                                <tbody>
-                                    <tr><td>BBOO 2157 LAUTARO</td><td>00:00</td><td>6</td><td class="bg-danger text-white">0%</td><td>0%</td></tr>
-                                    <tr><td>BBOO T99 OSORNO</td><td>00:27</td><td>1</td><td class="bg-danger text-white">31%</td><td>12%</td></tr>
-                                    <tr><td>BBOO 2092 PTO</td><td>00:34</td><td>5</td><td class="bg-success text-white">429%</td><td>8%</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <div class="card">
-                                <span class="title-sm" style="color:red">Complejidad Operacional</span>
-                                <div style="text-align: center; font-size:2rem;">⚠️</div>
-                            </div>
-                            <div class="card">
-                                <span class="title-sm">Fallas Pendientes</span>
-                                <div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>VALDIVIA</span><span class="text-red">28</span></div>
-                                <div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>PTO MONTT</span><span class="text-red">23</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="v1-charts">
-                        <div class="card">
-                            <span class="title-sm">Tiempo Improductivo</span>
-                            <div style="height: 100px; display: flex; align-items: flex-end; justify-content: space-around;">
-                                <div style="width:15%; height:80%; background:#3498db;"></div>
-                                <div style="width:15%; height:40%; background:#3498db;"></div>
-                                <div style="width:15%; height:20%; background:#3498db;"></div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <span class="title-sm">Concurrencia ante Fallas</span>
-                            <div style="height: 100px; display: flex; align-items: flex-end; justify-content: space-around;">
-                                <div style="width:15%; height:60%; background:#007bff;"></div>
-                                <div style="width:15%; height:50%; background:#007bff;"></div>
-                                <div style="width:15%; height:90%; background:#007bff;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <span class="title-sm">Análisis Tareas</span>
-                        <div class="scroll-table" style="max-height: 200px;">
-                            <table>
-                                <thead><tr><th>Brigada</th><th>Tarea</th><th>Tipo</th><th>Subtipo</th><th>Estado</th><th>Asignación</th></tr></thead>
-                                <tbody>
-                                    <tr><td>BBOO 2143</td><td>0016334..</td><td>Comercial</td><td>Cambio med.</td><td>Pendiente</td><td>8:31</td></tr>
-                                    <tr><td>BBOO 2164</td><td>0017284..</td><td>Comercial</td><td>Calidad Serv.</td><td>Pendiente</td><td>8:12</td></tr>
-                                    <tr><td>BBOO 3002</td><td>0017654..</td><td>Comercial</td><td>Cambio med.</td><td>Pendiente</td><td>8:29</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="card-body" style="padding:0;">
+                        <table class="data-table">
+                            <thead><tr><th>Tipo</th><th>Caso</th><th>Inicio</th><th>Jerarquía</th></tr></thead>
+                            <tbody>
+                                <tr><td>Planif. Acotada</td><td>40906970</td><td>10:00</td><td>Tucapel</td></tr>
+                                <tr><td>Planif. Forestal</td><td>40932539</td><td>10:00</td><td>Quilaco</td></tr>
+                                <tr style="background:rgba(239, 68, 68, 0.1);"><td>PT DX Tipo A</td><td>40924777</td><td>11:15</td><td>Las Hortencias</td></tr>
+                                <tr style="background:rgba(239, 68, 68, 0.1);"><td>PT DX Tipo A</td><td>40930493</td><td>09:00</td><td>Las Hortencias</td></tr>
+                                <tr><td>PT DX Tipo C</td><td>40923032</td><td>10:30</td><td>Carampangue</td></tr>
+                                <tr><td>PT DX Tipo C</td><td>40924801</td><td>10:00</td><td>Quilaco</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 2: MINUTA COMERCIAL ================= -->
-        <div id="tab2" class="tab-pane">
-            <div class="grid-v2">
-                <!-- Row 1: KPI Cards -->
-                <div class="v2-kpis">
-                    <div class="card kpi-shadow">
-                        <div style="font-size: 2rem; font-weight: bold;">231</div>
-                        <div style="font-weight: bold;">Q Tareas Totales</div>
-                    </div>
-                    <div class="card kpi-shadow" style="border-top-color: var(--primary-blue);">
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-blue);">62</div>
-                        <div>Regulatorios</div>
-                    </div>
-                    <div class="card kpi-shadow" style="border-top-color: var(--saesa-cyan);">
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--saesa-cyan);">9</div>
-                        <div>Desconexiones</div>
-                    </div>
-                    <div class="card kpi-shadow" style="border-top-color: var(--warning);">
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">26</div>
-                        <div>Prioritarios</div>
-                    </div>
-                    <div class="card kpi-shadow" style="border-top-color: #666;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #666;">20</div>
-                        <div>No Prioritarias</div>
-                    </div>
-                    <div class="card kpi-shadow">
-                        <div style="font-size: 1.5rem; font-weight: bold;">21,66</div>
-                        <small>Días prom en bandeja</small>
-                    </div>
-                    <div class="card kpi-shadow">
-                        <div style="font-size: 1.5rem; font-weight: bold;">20</div>
-                        <small>Tareas prox a vencer</small>
-                    </div>
-                </div>
-
-                <!-- Row 2: Table & Bar Chart -->
-                <div class="v2-middle">
-                    <div class="card" style="display: flex; flex-direction: column;">
-                        <span class="title-sm" style="font-size:1rem; text-align:center;">Minuta de Asignación Diaria de Tareas Comerciales</span>
-                        <div class="scroll-table" style="flex:1;">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Tarea</th><th>Dirección</th><th>Tipo</th><th>Responsable</th><th>Días</th><th>Plazo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>0018687170...</td><td>PUCOPIO 0...</td><td>Contrato BT1</td><td>BBCP - OCM...</td><td><div class="status-circle circle-red">12</div></td><td class="text-red">Multable</td></tr>
-                                    <tr><td>0018018982...</td><td>TRINGLO B 0...</td><td>Contrato BT1</td><td>Osorno</td><td><div class="status-circle circle-red">11</div></td><td class="text-red">Multable</td></tr>
-                                    <tr><td>0018732001...</td><td>DESAGUE...</td><td>Contrato BT1</td><td>Osorno</td><td><div class="status-circle circle-yellow">9</div></td><td class="text-red">Multable</td></tr>
-                                    <tr><td>0018732004...</td><td>EL ENCANTO...</td><td>Contrato BT1</td><td>BBOO T58...</td><td><div class="status-circle circle-yellow">9</div></td><td class="text-red">Multable</td></tr>
-                                    <tr><td>0018729740...</td><td>PAS LIBERT...</td><td>Desc. solic...</td><td>Osorno</td><td><div class="status-circle circle-yellow">9</div></td><td class="text-red">Multable</td></tr>
-                                    <tr><td>0018796738...</td><td>AMUNATEGUI...</td><td>Conexión...</td><td>Osorno</td><td><div class="status-circle circle-green">3</div></td><td class="text-red">Multable</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <span class="title-sm" style="text-align:center;">Cantidad de Tareas por Tipo</span>
-                        <div style="padding: 10px; overflow-y:auto; height: 90%;">
-                            <!-- Bar Item -->
-                            <div class="bar-container">
-                                <div class="bar-label">EnlaC-Conexión nuevo cliente</div>
-                                <div class="bar-track"><div class="bar-fill" style="width: 90%;">57</div></div>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar-label">EnlaC-Reposición de servicio</div>
-                                <div class="bar-track"><div class="bar-fill" style="width: 80%;">50</div></div>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar-label">EnlaC-Corte de servicio</div>
-                                <div class="bar-track"><div class="bar-fill" style="width: 60%;">36</div></div>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar-label">EnlaC-Cambio de medidor</div>
-                                <div class="bar-track"><div class="bar-fill" style="width: 40%;">23</div></div>
-                            </div>
-                             <div class="bar-container">
-                                <div class="bar-label">EnlaC-VL-Atención a dom.</div>
-                                <div class="bar-track"><div class="bar-fill" style="width: 20%;">10</div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 3: Bottom Charts -->
-                <div class="v2-bottom">
-                    <div class="card">
-                        <span class="title-sm">Tareas Pendientes en Bandeja</span>
-                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: space-around; padding-bottom: 20px;">
-                            <div style="text-align:center; width: 20%;"><div style="height: 80px; background: #0099cc;"></div><small>&lt; 5</small></div>
-                            <div style="text-align:center; width: 20%;"><div style="height: 50px; background: #0099cc;"></div><small>5-10</small></div>
-                            <div style="text-align:center; width: 20%;"><div style="height: 40px; background: #0099cc;"></div><small>11-20</small></div>
-                            <div style="text-align:center; width: 20%;"><div style="height: 20px; background: #0099cc;"></div><small>40+</small></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <span class="title-sm">Desconexiones Próximas</span>
-                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: space-around;">
-                             <div style="text-align:center; width: 30%;"><div style="height: 100px; background: navy;"></div><small>Día 16</small></div>
-                             <div style="text-align:center; width: 30%;"><div style="height: 50px; background: dodgerblue;"></div><small>Día 18</small></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                         <span class="title-sm">Próximas a vencer (5 Días)</span>
-                         <div style="height: 150px; display: flex; align-items: flex-end; justify-content: center;">
-                             <div style="text-align:center; width: 40%;"><div style="height: 120px; background: var(--purple); color:white; padding-top:5px;">49</div><small>Osorno</small></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <span class="title-sm">Tareas por Tipo (Treemap)</span>
-                        <div class="treemap">
-                            <div class="tm-item" style="width: 40%; height: 100%; background: var(--pink);">Reposiciones <br> 93</div>
-                            <div style="width: 60%; height: 100%; display: flex; flex-direction: column;">
-                                <div class="tm-item" style="height: 60%; background: navy;">Regulatorio <br> 62</div>
-                                <div style="height: 40%; display: flex;">
-                                    <div class="tm-item" style="width: 60%; background: var(--orange);">Prioritario <br> 26</div>
-                                    <div class="tm-item" style="width: 40%; background: #333; font-size: 0.6rem;">Solicit...</div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- COL 3: PLANNING (Derecha) -->
+        <div class="col-right">
+            <!-- Calendario -->
+            <div class="card">
+                <div class="card-header"><span class="card-title">Calendario PT - Dic 25</span></div>
+                <div class="card-body">
+                    <div class="calendar-mini">
+                        <div class="c-head">L</div><div class="c-head">M</div><div class="c-head">M</div><div class="c-head">J</div><div class="c-head">V</div><div class="c-head">S</div><div class="c-head">D</div>
+                        
+                        <div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day">1</div>
+                        <div class="c-day">2</div><div class="c-day">3</div><div class="c-day">4</div><div class="c-day">5</div><div class="c-day">6</div><div class="c-day">7</div>
+                        <div class="c-day">8</div><div class="c-day active">9</div><div class="c-day active">10</div><div class="c-day">11</div><div class="c-day">12</div><div class="c-day">13</div><div class="c-day">14</div>
+                        <div class="c-day">15</div><div class="c-day">16</div><div class="c-day">17</div><div class="c-day">18</div><div class="c-day">19</div><div class="c-day">20</div><div class="c-day">21</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ================= TAB 3: GESTIÓN PT ================= -->
-        <div id="tab3" class="tab-pane">
-            <div class="grid-v3">
-                <!-- Inner Sidebar -->
-                <div class="v3-sidebar">
-                    <h3 style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Solicitante</h3>
-                    <select><option>FRONTEL</option><option>SAESA</option></select>
-                    
-                    <h3 style="margin: 20px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Tipo</h3>
-                    <select><option>Todas</option></select>
-                    
-                    <div style="margin-top: auto; font-size: 0.7rem; color: #ccc;">Filtros específicos de PT</div>
-                </div>
-
-                <!-- Inner Content -->
-                <div class="v3-content">
-                    
-                    <!-- Top Row -->
-                    <div class="v3-top-row">
-                        <!-- Calendar -->
-                        <div class="card">
-                            <span class="title-sm" style="text-align:center; width:100%;">Calendario de PT - December 2025</span>
-                            <div class="calendar-grid">
-                                <div class="cal-header">Mon</div><div class="cal-header">Tue</div><div class="cal-header">Wed</div><div class="cal-header">Thu</div><div class="cal-header">Fri</div><div class="cal-header">Sat</div><div class="cal-header">Sun</div>
-                                
-                                <!-- Simulación Semanas -->
-                                <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day">1</div>
-                                <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
-                                <div class="cal-day day-red">9 <br> 10</div><div class="cal-day day-red">10 <br> 10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
-                                <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
-                                <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
-                            </div>
-                        </div>
-
-                        <!-- KPIs Tables -->
-                        <div style="display:flex; flex-direction:column; gap:10px;">
-                            <div style="display:flex; justify-content:space-between; text-align:center;">
-                                <div class="card" style="flex:1; margin-right:5px;">
-                                    <div style="font-size:1.5rem; font-weight:bold;">25</div>
-                                    <small>Indice Diario</small>
-                                </div>
-                                <div class="card" style="flex:1; margin-left:5px;">
-                                    <div style="font-size:1.5rem; font-weight:bold;">20</div>
-                                    <small>Casos del Día</small>
-                                </div>
-                            </div>
-                            
-                            <div class="card" style="flex:1; display:flex; gap:5px;">
-                                <div style="flex:1;">
-                                    <span class="title-sm">PT x Zona</span>
-                                    <table>
-                                        <tr style="background:#333; color:white;"><td>SANTA BARBARA</td><td>4</td></tr>
-                                        <tr><td>LONQUIMAY</td><td>3</td></tr>
-                                        <tr style="background:#333; color:white;"><td>ARAUCO</td><td>2</td></tr>
-                                        <tr><td>CAÑETE</td><td>2</td></tr>
-                                    </table>
-                                </div>
-                                <div style="flex:1;">
-                                    <span class="title-sm">PT x Tipo</span>
-                                    <table>
-                                        <tr style="background:#333; color:white;"><td>Planificación</td><td>1</td></tr>
-                                        <tr><td>PT DX Tipo A</td><td>2</td></tr>
-                                        <tr style="background:#333; color:white;"><td>PT DX Tipo B</td><td>1</td></tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Gauge -->
-                        <div class="card" style="text-align: center;">
-                            <span class="title-sm">Media Complejidad</span>
-                            <div class="gauge-container">
-                                <div class="gauge-arch"></div>
-                                <div class="gauge-needle"></div>
-                            </div>
-                            <small>Complejidad Media</small>
-                        </div>
+            <!-- Alertas Próximas -->
+            <div class="card" style="flex:1;">
+                <div class="card-header"><span class="card-title">Alertas & Vencimientos</span></div>
+                <div class="card-body">
+                    <div class="list-item">
+                        <span><span class="badge bg-red"></span>Próx. a Vencer</span>
+                        <strong>49</strong>
                     </div>
-
-                    <!-- Bottom Row: Table -->
-                    <div class="card" style="overflow: hidden; display: flex; flex-direction: column;">
-                         <span class="title-sm">Análisis Tareas</span>
-                         <div class="scroll-table">
-                             <table>
-                                 <thead>
-                                     <tr>
-                                         <th>Tipo</th><th>Caso</th><th>Q Pasos</th><th>Fecha</th><th>Inicio Sol.</th><th>Fin Sol.</th><th>Jerarquía</th><th>Solicitante</th><th>Descripción</th>
-                                     </tr>
-                                 </thead>
-                                 <tbody>
-                                     <tr><td>Planif. Acotada</td><td>40906970</td><td>21</td><td>martes, 02...</td><td>10:00</td><td>16:00</td><td>Tucapel [S110]</td><td>FRONTEL</td><td>1-Reemplazar amarras...</td></tr>
-                                     <tr><td>Planif. Forestal</td><td>40932539</td><td>15</td><td>lunes, 01...</td><td>10:00</td><td>16:00</td><td>Quilaco [S220]</td><td>FRONTEL</td><td>Mantenimiento de faja...</td></tr>
-                                     <tr style="background:red; color:white;"><td>PT DX Tipo A</td><td>40924777</td><td>34</td><td>lunes, 01...</td><td>11:15</td><td>17:15</td><td>Las Hortencias</td><td>FRONTEL</td><td>Tala de Arboles...</td></tr>
-                                     <tr style="background:red; color:white;"><td>PT DX Tipo A</td><td>40930493</td><td>29</td><td>martes, 02...</td><td>09:00</td><td>17:00</td><td>Las Hortencias</td><td>FRONTEL</td><td>Poda y tala...</td></tr>
-                                     <tr style="background:var(--warning);"><td>PT DX Tipo C</td><td>40923032</td><td>20</td><td>lunes, 01...</td><td>10:30</td><td>16:30</td><td>Carampangue</td><td>FRONTEL</td><td>Se realizarán podas...</td></tr>
-                                     <tr style="background:var(--warning);"><td>PT DX Tipo C</td><td>40924801</td><td>19</td><td>martes, 02...</td><td>10:00</td><td>16:00</td><td>Quilaco</td><td>FRONTEL</td><td>Mantenimiento de faja...</td></tr>
-                                 </tbody>
-                             </table>
-                         </div>
+                    <div class="list-item">
+                        <span><span class="badge bg-blu"></span>Tareas Críticas</span>
+                        <strong>15</strong>
                     </div>
-
+                    <div class="list-item">
+                        <span><span class="badge bg-yel"></span>Desconexiones</span>
+                        <strong>9</strong>
+                    </div>
+                    
+                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <span class="card-title" style="margin-bottom:8px; display:block;">PT x Zona Crítica</span>
+                        <div class="list-item"><span>Santa Barbara</span> <strong>4</strong></div>
+                        <div class="list-item"><span>Lonquimay</span> <strong>3</strong></div>
+                        <div class="list-item"><span>Arauco</span> <strong>2</strong></div>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Gráfico de Concurrencia Mini -->
+            <div class="card" style="height: 180px;">
+                 <div class="card-header"><span class="card-title">Concurrencia Fallas</span></div>
+                 <div class="card-body">
+                    <div class="bar-chart">
+                        <div class="bar-col" style="width:20%; height:80%; background:var(--primary-blue)"></div>
+                        <div class="bar-col" style="width:20%; height:60%; background:var(--primary-blue)"></div>
+                        <div class="bar-col" style="width:20%; height:40%; background:var(--primary-blue)"></div>
+                        <div class="bar-col" style="width:20%; height:20%; background:var(--primary-blue)"></div>
+                    </div>
+                    <div style="text-align:center; font-size:0.6rem; color:#888; margin-top:5px;">OSORNO - CABRERO - VALD.</div>
+                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Simple Script for Tab Switching -->
-    <script>
-        function switchTab(tabId, element) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-pane').forEach(tab => tab.classList.remove('active'));
-            // Remove active class from buttons
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected tab and activate button
-            document.getElementById(tabId).classList.add('active');
-            element.classList.add('active');
-        }
-    </script>
 </body>
 </html>
