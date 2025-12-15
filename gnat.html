@@ -3,406 +3,574 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo Saesa - Centrality Dashboard Unificado</title>
+    <title>Centro de Operaciones Unificado - Dashboard</title>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary-blue: #003366;
-            --secondary-blue: #0056b3;
-            --accent-cyan: #0099cc;
-            --bg-body: #f4f7fa;
+            --primary-color: #003366; /* Azul corporativo oscuro */
+            --secondary-color: #005596; /* Azul más claro */
+            --accent-color: #FF6600; /* Naranja Saesa */
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --bg-color: #f4f6f9;
             --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --text-muted: #7f8c8d;
-            --border-color: #e2e8f0;
-            
-            /* Status Colors */
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --purple: #8b5cf6;
+            --text-color: #333;
+            --border-radius: 8px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-        
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; /* Evita scroll en la pagina principal, solo interno */
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        /* --- 1. Header & Filters --- */
-        header {
-            background: var(--primary-blue);
+        body { background-color: var(--bg-color); color: var(--text-color); }
+
+        /* HEADER & FILTROS */
+        .header {
+            background-color: var(--primary-color);
             color: white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            height: 50px;
-            z-index: 10;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .brand h1 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .brand span { font-weight: 300; opacity: 0.9; font-size: 0.9em; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 10px; }
+        .logo-section h2 { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .logo-section i { color: var(--accent-color); }
 
-        .filters-container { display: flex; gap: 8px; }
-        .filter-select {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;
-            cursor: pointer; transition: 0.2s;
+        .filters { display: flex; gap: 10px; }
+        
+        select, button.action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
         }
-        .filter-select:hover { background: rgba(255,255,255,0.2); }
-        .filter-select option { color: #333; }
+        
+        select:hover { background-color: rgba(255,255,255,0.2); }
+        option { background-color: var(--primary-color); }
 
-        .btn-action {
-            background: var(--success); color: white; border: none; 
-            padding: 5px 12px; border-radius: 4px; font-weight: 600; font-size: 0.75rem;
-            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .action-btn {
+            background-color: var(--success-color);
+            border: none;
+            font-weight: bold;
         }
+        .action-btn:hover { background-color: #218838; }
 
-        /* --- 2. Main Dashboard Grid --- */
-        .dashboard-grid {
-            flex: 1;
-            padding: 10px;
+        /* KPI CARDS (TOP ROW) */
+        .kpi-container {
             display: grid;
-            grid-template-columns: 240px 1fr 280px; /* Sidebar | Main | Right Panel */
-            grid-template-rows: auto 1fr; /* Top Stats | Content */
-            gap: 12px;
-            overflow-y: auto;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            padding: 15px;
         }
 
-        /* --- Common Card Styles --- */
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-top: 3px solid transparent;
+        }
+        
+        .kpi-card.blue { border-color: var(--secondary-color); }
+        .kpi-card.green { border-color: var(--success-color); }
+        .kpi-card.orange { border-color: var(--accent-color); }
+        .kpi-card.red { border-color: var(--danger-color); }
+
+        .kpi-value { font-size: 1.8rem; font-weight: bold; color: var(--text-color); }
+        .kpi-label { font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* MAIN LAYOUT GRID */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr 280px; /* Sidebar Izq | Central | Sidebar Der */
+            gap: 15px;
+            padding: 0 15px 15px 15px;
+            height: calc(100vh - 140px);
+        }
+
+        /* GENERAL CARD STYLES */
         .card {
             background: var(--card-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
+
         .card-header {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fafafa;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
         }
-        .card-title { font-size: 0.75rem; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card-body { padding: 10px; flex: 1; overflow-y: auto; position: relative; }
 
-        /* --- Top KPI Bar (Unified) --- */
-        .kpi-bar {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        /* COLUMNA IZQUIERDA */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .badge { padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; color: white; font-weight: bold; }
+        .badge.red { background-color: var(--danger-color); }
+        .badge.orange { background-color: var(--accent-color); }
+
+        /* GAUGE CHART CONTAINER */
+        .gauge-container { height: 120px; position: relative; }
+        
+        /* TABLA BRIGADAS */
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; color: #666; font-weight: 600; padding: 5px; }
+        td { padding: 6px 5px; border-bottom: 1px solid #f0f0f0; }
+        .progress-bar-bg { width: 100%; background: #eee; height: 6px; border-radius: 3px; margin-top: 4px; }
+        .progress-bar-fill { height: 100%; border-radius: 3px; }
+
+        /* COLUMNA CENTRAL */
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; height: 200px; }
+        .table-container { flex-grow: 1; overflow-y: auto; }
+        
+        .status-pill {
+            padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+        }
+        .status-pill.multable { background: #fee2e2; color: #991b1b; } /* Rojo suave */
+        .status-pill.normal { background: #d1fae5; color: #065f46; } /* Verde suave */
+        .status-pill.pendiente { background: #fef3c7; color: #92400e; } /* Amarillo suave */
+
+        /* COLUMNA DERECHA */
+        .calendar-mini { width: 100%; font-size: 0.75rem; text-align: center; }
+        .calendar-mini th { text-align: center; background: #f8f9fa; }
+        .calendar-mini td { padding: 4px; cursor: pointer; }
+        .calendar-mini td:hover { background: #e9ecef; border-radius: 50%; }
+        .calendar-mini .active { background: var(--accent-color); color: white; border-radius: 50%; }
+        
+        .alert-item {
+            display: flex;
+            align-items: center;
             gap: 10px;
+            padding: 8px;
+            background: #fff5f5;
+            border-left: 3px solid var(--danger-color);
+            margin-bottom: 5px;
+            font-size: 0.8rem;
         }
-        .kpi-card {
-            background: white; padding: 10px; border-radius: 6px; border-left: 4px solid var(--primary-blue);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: center;
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-grid { grid-template-columns: 250px 1fr; }
+            .right-sidebar { display: none; } /* Ocultar sidebar der en pantallas medianas o mover abajo */
         }
-        .kpi-val { font-size: 1.4rem; font-weight: 800; line-height: 1; color: var(--text-main); }
-        .kpi-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
-        
-        .kpi-warn { border-color: var(--warning); }
-        .kpi-danger { border-color: var(--danger); }
-        .kpi-success { border-color: var(--success); }
-
-        /* --- Column 1: Operational (Left) --- */
-        .col-ops { display: flex; flex-direction: column; gap: 12px; }
-        
-        .map-widget {
-            background: #2c3e50; color: white; height: 250px; border-radius: 8px; position: relative;
-            display: flex; flex-direction: column;
-        }
-        .map-point { display: flex; align-items: center; gap: 8px; padding: 5px 15px; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-        .gauge-mini { width: 100px; height: 50px; background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444); border-radius: 50px 50px 0 0; margin: 10px auto; position: relative; }
-        .gauge-arrow { width: 2px; height: 45px; background: #333; position: absolute; left: 50%; bottom: 0; transform-origin: bottom center; transform: rotate(45deg); }
-
-        /* --- Column 2: Tactical Center --- */
-        .col-center { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
-        
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 160px; }
-        
-        /* Minimalist Charts */
-        .bar-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 100%; padding-top: 10px; }
-        .bar-col { width: 15%; background: var(--info); border-radius: 3px 3px 0 0; position: relative; transition: height 0.5s; }
-        .bar-col span { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: bold; }
-        
-        .treemap-mini { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; height: 100%; }
-        .tm-box { display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: bold; padding: 5px; flex-direction: column; }
-        
-        /* Unified Table Section */
-        .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 100%; min-height: 250px; }
-        
-        /* --- Column 3: Planning (Right) --- */
-        .col-right { display: flex; flex-direction: column; gap: 12px; }
-        
-        .calendar-mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; font-size: 0.65rem; text-align: center; }
-        .c-head { color: var(--text-muted); padding-bottom: 5px; }
-        .c-day { padding: 4px; background: #f8f9fa; border-radius: 3px; }
-        .c-day.active { background: var(--danger); color: white; font-weight: bold; }
-        
-        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.75rem; }
-        .list-item:last-child { border: none; }
-        .tag { padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 700; }
-
-        /* --- Tables --- */
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-        .data-table th { position: sticky; top: 0; background: #f1f5f9; padding: 6px; text-align: left; color: #64748b; font-weight: 600; z-index: 1;}
-        .data-table td { padding: 6px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
-        .data-table tr:hover { background: #f8fafc; }
-        
-        .badge { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; }
-
-        /* Utilities */
-        .text-red { color: var(--danger); }
-        .bg-red { background: var(--danger); color: white; }
-        .bg-yel { background: var(--warning); color: #333; }
-        .bg-blu { background: var(--info); color: white; }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #999; }
-
     </style>
 </head>
 <body>
 
     <!-- HEADER -->
-    <header>
-        <div class="brand">
-            <h1>🛠️ Grupo Saesa <span>Centro de Operaciones Unificado</span></h1>
+    <div class="header">
+        <div class="logo-section">
+            <h2><i class="fa-solid fa-bolt"></i> Grupo Saesa | COU</h2>
         </div>
-        <div class="filters-container">
-            <select class="filter-select"><option>Zonal: Todas</option><option>Osorno</option><option>Valdivia</option></select>
-            <select class="filter-select"><option>Comuna: Todas</option></select>
-            <select class="filter-select"><option>Brigada: Todas</option></select>
-            <select class="filter-select"><option>Tipo Tarea: Todas</option></select>
-            <button class="btn-action">Levantar Incidencia +</button>
-        </div>
-    </header>
+        <div class="filters">
+            <!-- EJEMPLOS DE SEGMENTADORES ÚTILES -->
+            <select id="zonaFilter" onchange="actualizarDashboard()">
+                <option value="all">Zonal: Todas</option>
+                <option value="valdivia">Zonal Valdivia</option>
+                <option value="osorno">Zonal Osorno</option>
+                <option value="ptomontt">Zonal Pto. Montt</option>
+                <option value="chiloe">Zonal Chiloé</option>
+            </select>
+            
+            <select id="comunaFilter">
+                <option value="all">Comuna: Todas</option>
+                <!-- Se llenarían dinámicamente con JS -->
+                <option value="c1">Valdivia Centro</option>
+                <option value="c2">Corral</option>
+            </select>
 
-    <div class="dashboard-grid">
+            <select id="brigadaFilter">
+                <option value="all">Tipo Brigada: Todas</option>
+                <option value="liviana">Brigada Liviana</option>
+                <option value="pesada">Brigada Pesada</option>
+                <option value="roce">Brigada de Roce</option>
+            </select>
+
+            <select id="estadoFilter">
+                <option value="all">Estado: Todos</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="curso">En Curso</option>
+                <option value="cerrado">Cerrados</option>
+            </select>
+
+            <button class="action-btn"><i class="fa-solid fa-plus"></i> Levantar Incidencia</button>
+        </div>
+    </div>
+
+    <!-- KPI TOP ROW -->
+    <div class="kpi-container">
+        <div class="kpi-card blue">
+            <div class="kpi-value">446</div>
+            <div class="kpi-label">Tareas Asignadas</div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-value">106.9%</div>
+            <div class="kpi-label">Eficiencia Operativa</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-value">26</div>
+            <div class="kpi-label">Prioritarios Hoy</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-value">231</div>
+            <div class="kpi-label">Total en Bandeja</div>
+        </div>
+        <div class="kpi-card red">
+            <div class="kpi-value">25</div>
+            <div class="kpi-label">Índice PT Diario</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-value">21.6</div>
+            <div class="kpi-label">Días Promedio</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-grid">
         
-        <!-- KPI ROW (Unificado) -->
-        <div class="kpi-bar">
-            <!-- Operativos -->
-            <div class="kpi-card">
-                <div class="kpi-val" style="color: var(--primary-blue);">446</div>
-                <div class="kpi-lbl">Tareas Asignadas</div>
+        <!-- COLUMNA 1: ESTADO OPERACIONAL -->
+        <div class="col-left">
+            <!-- Fallas Pendientes -->
+            <div class="card" style="height: auto;">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-triangle-exclamation"></i> Fallas Pendientes</span>
+                </div>
+                <div class="list-item"><span>Valdivia</span> <span class="badge red">28</span></div>
+                <div class="list-item"><span>Pto. Montt</span> <span class="badge red">23</span></div>
+                <div class="list-item"><span>Malleco</span> <span class="badge orange">14</span></div>
+                <div class="list-item"><span>Osorno</span> <span class="badge orange">13</span></div>
             </div>
-            <div class="kpi-card kpi-success">
-                <div class="kpi-val" style="color: var(--success);">1069%</div>
-                <div class="kpi-lbl">Eficiencia Operativa</div>
+
+            <!-- Complejidad Operacional (Gauge) -->
+            <div class="card">
+                <div class="card-header">Complejidad Operacional</div>
+                <div class="gauge-container">
+                    <canvas id="gaugeChart"></canvas>
+                </div>
+                <div style="text-align: center; font-weight: bold; color: orange; margin-top: -10px;">MEDIA-ALTA</div>
+                <div style="text-align: center; font-size: 0.7rem; color: #666;">Factores: Clima, Tráfico</div>
             </div>
-            <!-- Comerciales -->
-            <div class="kpi-card kpi-warn">
-                <div class="kpi-val" style="color: var(--warning);">26</div>
-                <div class="kpi-lbl">Prioritarios Hoy</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-val">231</div>
-                <div class="kpi-lbl">Total en Bandeja</div>
-            </div>
-            <!-- PT -->
-            <div class="kpi-card kpi-danger">
-                <div class="kpi-val" style="color: var(--danger);">25</div>
-                <div class="kpi-lbl">Índice PT Diario</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-val">21.6</div>
-                <div class="kpi-lbl">Días Promedio</div>
+
+            <!-- Estado Brigadas -->
+            <div class="card" style="flex-grow: 1;">
+                <div class="card-header">Estado Brigadas</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brigada</th>
+                            <th>Efic.</th>
+                            <th>Ocup.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BBOO 2157</td>
+                            <td>
+                                0%
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 0%; background: #ccc;"></div></div>
+                            </td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>BBOO T99</td>
+                            <td>
+                                31%
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 31%; background: #dc3545;"></div></div>
+                            </td>
+                            <td>12%</td>
+                        </tr>
+                        <tr>
+                            <td>BBOO 2092</td>
+                            <td>
+                                98%
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 98%; background: #28a745;"></div></div>
+                            </td>
+                            <td>88%</td>
+                        </tr>
+                         <tr>
+                            <td>BBOO T59</td>
+                            <td>
+                                64%
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 64%; background: #ffc107;"></div></div>
+                            </td>
+                            <td>50%</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- COL 1: OPERACIONES (Izquierda) -->
-        <div class="col-ops">
-            <!-- Mapa -->
-            <div class="card map-widget">
-                <div style="padding:10px; font-weight:bold; background:rgba(0,0,0,0.2);">📍 Fallas Pendientes</div>
-                <div style="flex:1; padding:10px; display:flex; flex-direction:column; justify-content:space-evenly;">
-                    <div class="map-point"><div class="dot" style="background:var(--danger)"></div> Valdivia <span style="margin-left:auto; font-weight:bold;">28</span></div>
-                    <div class="map-point"><div class="dot" style="background:var(--danger)"></div> Pto. Montt <span style="margin-left:auto; font-weight:bold;">23</span></div>
-                    <div class="map-point"><div class="dot" style="background:var(--warning)"></div> Malleco <span style="margin-left:auto; font-weight:bold;">14</span></div>
-                    <div class="map-point"><div class="dot" style="background:var(--warning)"></div> Osorno <span style="margin-left:auto; font-weight:bold;">13</span></div>
-                </div>
-            </div>
-
-            <!-- Complejidad -->
-            <div class="card" style="min-height: 150px;">
-                <div class="card-header"><span class="card-title">Complejidad Operacional</span></div>
-                <div class="card-body" style="text-align: center;">
-                    <div class="gauge-mini"><div class="gauge-arrow"></div></div>
-                    <div style="font-weight:bold; color:var(--warning); margin-top:5px;">MEDIA-ALTA</div>
-                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">Factores: Clima, Tráfico</div>
-                </div>
-            </div>
-
-            <!-- Panel Brigadas -->
-            <div class="card" style="flex:1;">
-                <div class="card-header"><span class="card-title">Estado Brigadas</span></div>
-                <div class="card-body" style="padding:0;">
-                    <table class="data-table">
-                        <thead><tr><th>Brigada</th><th>Efic.</th><th>Ocup.</th></tr></thead>
-                        <tbody>
-                            <tr><td>BBOO 2157</td><td class="text-red">0%</td><td>0%</td></tr>
-                            <tr><td>BBOO T99</td><td class="text-red">31%</td><td>12%</td></tr>
-                            <tr><td>BBOO 2092</td><td style="color:var(--success)">429%</td><td>8%</td></tr>
-                            <tr><td>BBOO 2029</td><td style="color:var(--success)">143%</td><td>3%</td></tr>
-                             <tr><td>BBOO T59</td><td class="text-red">34%</td><td>12%</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- COL 2: TÁCTICO & COMERCIAL (Centro) -->
+        <!-- COLUMNA 2: ANÁLISIS Y GESTIÓN -->
         <div class="col-center">
             
-            <!-- Fila Gráficos -->
-            <div class="charts-row">
-                <div class="card">
-                    <div class="card-header"><span class="card-title">Tiempo Improductivo</span></div>
-                    <div class="card-body">
-                        <div class="bar-chart">
-                            <div class="bar-col" style="height:90%; background:var(--primary-blue)"><span>99</span></div>
-                            <div class="bar-col" style="height:30%; background:var(--secondary-blue)"><span>30</span></div>
-                            <div class="bar-col" style="height:24%; background:var(--accent-cyan)"><span>24</span></div>
-                            <div class="bar-col" style="height:10%; background:var(--info)"><span>4</span></div>
-                            <div class="bar-col" style="height:5%; background:#ccc"><span>1</span></div>
-                        </div>
-                    </div>
+            <!-- Fila de Gráficos -->
+            <div class="chart-row">
+                <!-- Tiempo Improductivo -->
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-header">Tiempo Improductivo (min)</div>
+                    <canvas id="barChart"></canvas>
                 </div>
-                <div class="card">
-                    <div class="card-header"><span class="card-title">Distribución Tareas</span></div>
-                    <div class="card-body" style="padding:0;">
-                        <div class="treemap-mini">
-                            <div class="tm-box" style="background:#e83e8c; grid-row: 1 / 3;">Reposiciones<br>93</div>
-                            <div class="tm-box" style="background:#003366;">Regulatorio<br>62</div>
-                            <div class="tm-box" style="background:#fd7e14;">Prioritario<br>26</div>
-                        </div>
-                    </div>
+                <!-- Distribución Tareas -->
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-header">Distribución Tareas</div>
+                    <canvas id="doughnutChart"></canvas>
                 </div>
             </div>
 
-            <!-- Tablas de Datos -->
-            <div class="tables-grid">
-                <!-- Tabla Minuta Comercial -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Minuta Asignación Comercial</span>
-                        <span class="tag bg-blu">En Proceso</span>
-                    </div>
-                    <div class="card-body" style="padding:0;">
-                        <table class="data-table">
-                            <thead><tr><th>Tarea</th><th>Tipo</th><th>Días</th><th>Estado</th></tr></thead>
-                            <tbody>
-                                <tr><td>0018687...</td><td>Contrato BT1</td><td><span class="tag bg-red">12</span></td><td>Multable</td></tr>
-                                <tr><td>0018018...</td><td>Contrato BT1</td><td><span class="tag bg-red">11</span></td><td>Multable</td></tr>
-                                <tr><td>0018732...</td><td>Contrato BT1</td><td><span class="tag bg-yel">9</span></td><td>Multable</td></tr>
-                                <tr><td>0018729...</td><td>Desc. Solicitud</td><td><span class="tag bg-yel">9</span></td><td>Multable</td></tr>
-                                <tr><td>0018796...</td><td>Conexión</td><td><span class="tag bg-blu">3</span></td><td>Normal</td></tr>
-                                <tr><td>0018811...</td><td>Desc. Solicitud</td><td><span class="tag bg-blu">2</span></td><td>Normal</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Minuta Comercial -->
+            <div class="card table-container" style="max-height: 250px;">
+                <div class="card-header">
+                    <span>Minuta Asignación Comercial</span>
+                    <span class="badge" style="background:var(--primary-color)">En Proceso</span>
                 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarea</th>
+                            <th>Tipo</th>
+                            <th>Días Ant.</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0018687...</td>
+                            <td>Contrato BT1</td>
+                            <td><span class="badge red">12</span></td>
+                            <td><span class="status-pill multable">Multable</span></td>
+                        </tr>
+                        <tr>
+                            <td>0018018...</td>
+                            <td>Contrato BT1</td>
+                            <td><span class="badge red">11</span></td>
+                            <td><span class="status-pill multable">Multable</span></td>
+                        </tr>
+                        <tr>
+                            <td>0018732...</td>
+                            <td>Contrato BT1</td>
+                            <td><span class="badge orange">9</span></td>
+                            <td><span class="status-pill multable">Riesgo</span></td>
+                        </tr>
+                        <tr>
+                            <td>0018796...</td>
+                            <td>Conexión</td>
+                            <td><span class="badge" style="background:#007bff">3</span></td>
+                            <td><span class="status-pill normal">Normal</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <!-- Tabla Análisis PT -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Gestión y Análisis PT</span>
-                        <span class="tag bg-yel">Pendiente</span>
-                    </div>
-                    <div class="card-body" style="padding:0;">
-                        <table class="data-table">
-                            <thead><tr><th>Tipo</th><th>Caso</th><th>Inicio</th><th>Jerarquía</th></tr></thead>
-                            <tbody>
-                                <tr><td>Planif. Acotada</td><td>40906970</td><td>10:00</td><td>Tucapel</td></tr>
-                                <tr><td>Planif. Forestal</td><td>40932539</td><td>10:00</td><td>Quilaco</td></tr>
-                                <tr style="background:rgba(239, 68, 68, 0.1);"><td>PT DX Tipo A</td><td>40924777</td><td>11:15</td><td>Las Hortencias</td></tr>
-                                <tr style="background:rgba(239, 68, 68, 0.1);"><td>PT DX Tipo A</td><td>40930493</td><td>09:00</td><td>Las Hortencias</td></tr>
-                                <tr><td>PT DX Tipo C</td><td>40923032</td><td>10:30</td><td>Carampangue</td></tr>
-                                <tr><td>PT DX Tipo C</td><td>40924801</td><td>10:00</td><td>Quilaco</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Gestión PT -->
+            <div class="card table-container" style="flex-grow: 1;">
+                <div class="card-header">
+                    <span>Gestión y Análisis PT</span>
+                    <span class="badge orange">Pendiente</span>
                 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Caso</th>
+                            <th>Inicio</th>
+                            <th>Jerarquía</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Planif. Acotada</td>
+                            <td>40906970</td>
+                            <td>10:00</td>
+                            <td>Tucapel</td>
+                        </tr>
+                        <tr>
+                            <td>Planif. Forestal</td>
+                            <td>40932539</td>
+                            <td>10:00</td>
+                            <td>Quilaco</td>
+                        </tr>
+                        <tr style="background-color: #fff0f0;">
+                            <td>PT DX Tipo A</td>
+                            <td>40924777</td>
+                            <td>11:15</td>
+                            <td>Las Hortencias</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- COL 3: PLANNING (Derecha) -->
+        <!-- COLUMNA 3: DETALLES Y ALERTAS -->
         <div class="col-right">
             <!-- Calendario -->
             <div class="card">
-                <div class="card-header"><span class="card-title">Calendario PT - Dic 25</span></div>
-                <div class="card-body">
-                    <div class="calendar-mini">
-                        <div class="c-head">L</div><div class="c-head">M</div><div class="c-head">M</div><div class="c-head">J</div><div class="c-head">V</div><div class="c-head">S</div><div class="c-head">D</div>
-                        
-                        <div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day"></div><div class="c-day">1</div>
-                        <div class="c-day">2</div><div class="c-day">3</div><div class="c-day">4</div><div class="c-day">5</div><div class="c-day">6</div><div class="c-day">7</div>
-                        <div class="c-day">8</div><div class="c-day active">9</div><div class="c-day active">10</div><div class="c-day">11</div><div class="c-day">12</div><div class="c-day">13</div><div class="c-day">14</div>
-                        <div class="c-day">15</div><div class="c-day">16</div><div class="c-day">17</div><div class="c-day">18</div><div class="c-day">19</div><div class="c-day">20</div><div class="c-day">21</div>
+                <div class="card-header">Calendario PT - Dic 25</div>
+                <table class="calendar-mini">
+                    <thead><tr><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th><th>S</th><th>D</th></tr></thead>
+                    <tbody>
+                        <tr><td></td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
+                        <tr><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+                        <tr><td>11</td><td>12</td><td>13</td><td>14</td><td class="active">15</td><td>16</td><td>17</td></tr>
+                        <tr><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Alertas -->
+            <div class="card">
+                <div class="card-header">Alertas & Vencimientos</div>
+                <div class="alert-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        <strong>Próx. a Vencer</strong><br>
+                        <span style="font-size:0.7rem">49 casos críticos</span>
+                    </div>
+                </div>
+                <div class="alert-item" style="border-left-color: var(--accent-color); background: #fff8f0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-color)"></i>
+                    <div>
+                        <strong>Tareas Críticas</strong><br>
+                        <span style="font-size:0.7rem">15 brigadas asignadas</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Alertas Próximas -->
-            <div class="card" style="flex:1;">
-                <div class="card-header"><span class="card-title">Alertas & Vencimientos</span></div>
-                <div class="card-body">
-                    <div class="list-item">
-                        <span><span class="badge bg-red"></span>Próx. a Vencer</span>
-                        <strong>49</strong>
-                    </div>
-                    <div class="list-item">
-                        <span><span class="badge bg-blu"></span>Tareas Críticas</span>
-                        <strong>15</strong>
-                    </div>
-                    <div class="list-item">
-                        <span><span class="badge bg-yel"></span>Desconexiones</span>
-                        <strong>9</strong>
-                    </div>
-                    
-                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                        <span class="card-title" style="margin-bottom:8px; display:block;">PT x Zona Crítica</span>
-                        <div class="list-item"><span>Santa Barbara</span> <strong>4</strong></div>
-                        <div class="list-item"><span>Lonquimay</span> <strong>3</strong></div>
-                        <div class="list-item"><span>Arauco</span> <strong>2</strong></div>
-                    </div>
-                </div>
+            <!-- Zona Crítica -->
+            <div class="card">
+                <div class="card-header">PT x Zona Crítica</div>
+                <div class="list-item"><span>Santa Barbara</span> <strong>4</strong></div>
+                <div class="list-item"><span>Lonquimay</span> <strong>3</strong></div>
+                <div class="list-item"><span>Arauco</span> <strong>2</strong></div>
             </div>
-            
-            <!-- Gráfico de Concurrencia Mini -->
-            <div class="card" style="height: 180px;">
-                 <div class="card-header"><span class="card-title">Concurrencia Fallas</span></div>
-                 <div class="card-body">
-                    <div class="bar-chart">
-                        <div class="bar-col" style="width:20%; height:80%; background:var(--primary-blue)"></div>
-                        <div class="bar-col" style="width:20%; height:60%; background:var(--primary-blue)"></div>
-                        <div class="bar-col" style="width:20%; height:40%; background:var(--primary-blue)"></div>
-                        <div class="bar-col" style="width:20%; height:20%; background:var(--primary-blue)"></div>
-                    </div>
-                    <div style="text-align:center; font-size:0.6rem; color:#888; margin-top:5px;">OSORNO - CABRERO - VALD.</div>
-                 </div>
+
+            <!-- Concurrencia -->
+            <div class="card" style="flex-grow: 1;">
+                <div class="card-header">Concurrencia Fallas</div>
+                <canvas id="concurrenceChart"></canvas>
             </div>
         </div>
-
     </div>
+
+    <!-- SCRIPTS PARA GRÁFICOS -->
+    <script>
+        // Configuración común de estilos
+        Chart.defaults.font.family = "'Segoe UI', sans-serif";
+        Chart.defaults.font.size = 10;
+        Chart.defaults.color = '#666';
+
+        // 1. Gráfico Gauge (Complejidad) - Simulado con Doughnut
+        new Chart(document.getElementById('gaugeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Bajo', 'Medio', 'Alto'],
+                datasets: [{
+                    data: [30, 40, 30],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                aspectRatio: 1.5
+            }
+        });
+
+        // 2. Gráfico Barras (Tiempo Improductivo)
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Traslado', 'Espera Mat.', 'Espera Instruc.', 'Otros'],
+                datasets: [{
+                    label: 'Minutos',
+                    data: [99, 30, 24, 5],
+                    backgroundColor: '#003366',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // 3. Gráfico Donut (Distribución Tareas)
+        new Chart(document.getElementById('doughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Reposiciones', 'Regulatorio', 'Prioritario'],
+                datasets: [{
+                    data: [93, 62, 26],
+                    backgroundColor: ['#e83e8c', '#003366', '#fd7e14'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'right', labels: { boxWidth: 10 } } 
+                },
+                cutout: '60%'
+            }
+        });
+
+        // 4. Gráfico Barras Vertical (Concurrencia)
+        new Chart(document.getElementById('concurrenceChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Osorno', 'Cabrero', 'Vald.', 'Temuco'],
+                datasets: [{
+                    label: 'Fallas',
+                    data: [12, 8, 5, 3],
+                    backgroundColor: '#003366'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { ticks: { font: { size: 9 } } } }
+            }
+        });
+
+        // Simulación de filtro
+        function actualizarDashboard() {
+            const zona = document.getElementById('zonaFilter').value;
+            // Aquí iría la lógica para llamar al backend o filtrar los datos JS
+            console.log("Filtrando por zona: " + zona);
+            alert("Dashboard actualizado para zona: " + zona);
+        }
+    </script>
+</body>
+</html>
 
 </body>
 </html>
