@@ -24,22 +24,31 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; /* Evita que el body crezca infinitamente */
+        }
 
         /* HEADER */
         .header {
             background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 60px;
+            height: 50px;
             flex-shrink: 0;
         }
 
+        .header h3 { font-size: 1.1rem; }
         .filters { display: flex; gap: 10px; }
-        select, button.action-btn { padding: 5px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background-color: rgba(255,255,255,0.1); color: white; cursor: pointer; }
+        select, button.action-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background-color: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.85rem;}
         option { background-color: var(--primary-color); }
         .action-btn { background-color: var(--success-color); border: none; font-weight: bold; }
 
@@ -47,14 +56,14 @@
         .kpi-container {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 15px;
-            padding: 15px;
+            gap: 10px;
+            padding: 10px 15px;
             flex-shrink: 0;
         }
 
         .kpi-card {
             background: var(--card-bg);
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border-top: 3px solid transparent;
@@ -63,82 +72,92 @@
         .kpi-card.green { border-color: var(--success-color); }
         .kpi-card.orange { border-color: var(--accent-color); }
         .kpi-card.red { border-color: var(--danger-color); }
-        .kpi-value { font-size: 1.5rem; font-weight: bold; }
-        .kpi-label { font-size: 0.75rem; color: #666; text-transform: uppercase; }
+        .kpi-value { font-size: 1.3rem; font-weight: bold; }
+        .kpi-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
 
         /* MAIN GRID */
         .main-grid {
             display: grid;
-            grid-template-columns: 280px 1fr 280px; /* Sidebar Izq | Central | Sidebar Der */
+            grid-template-columns: 260px 1fr 260px; /* Sidebar Izq | Central | Sidebar Der */
             gap: 15px;
             padding: 0 15px 15px 15px;
             flex-grow: 1;
-            overflow: hidden; /* Evita scroll global */
+            overflow: hidden; /* Importante para contener el scroll */
+            min-height: 0; /* Truco de Flexbox/Grid para permitir encogimiento */
         }
 
         .col-left, .col-center, .col-right {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            overflow-y: auto; /* Scroll individual por columna */
-            padding-right: 5px; /* Espacio para scrollbar */
+            gap: 12px;
+            overflow-y: auto; /* Scroll individual */
+            padding-right: 5px;
+            min-height: 0; /* Truco vital */
         }
 
         /* CARD STYLES */
         .card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
+            width: 100%; /* Asegura que no desborde */
         }
 
         .card-header {
-            font-size: 0.9rem; font-weight: bold; color: var(--primary-color);
-            margin-bottom: 10px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px;
+            font-size: 0.85rem; font-weight: bold; color: var(--primary-color);
+            margin-bottom: 8px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px;
         }
 
-        /* SOLUCIÓN AL PROBLEMA DE GRÁFICOS */
-        .chart-wrapper {
+        /* --- CORRECCIÓN DE GRÁFICOS --- */
+        /* Esta clase fuerza una altura exacta. El gráfico NO puede crecer más que esto. */
+        .fixed-chart-height {
             position: relative;
+            height: 180px; /* Altura rígida en píxeles */
             width: 100%;
-            height: 100%;
-            min-height: 150px; /* Altura mínima de seguridad */
             overflow: hidden;
         }
         
-        /* Contenedores específicos para altura fija */
-        .h-200 { height: 200px; }
-        .h-150 { height: 150px; }
+        .fixed-chart-height-small {
+            position: relative;
+            height: 140px; 
+            width: 100%;
+            overflow: hidden;
+        }
 
-        /* TABLAS Y LISTAS */
-        .list-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; }
-        .badge { padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; color: white; font-weight: bold; }
+        /* ESTILOS DE TABLAS Y LISTAS */
+        .list-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; }
+        .badge { padding: 1px 5px; border-radius: 8px; font-size: 0.7rem; color: white; font-weight: bold; }
         .badge.red { background-color: var(--danger-color); }
         .badge.orange { background-color: var(--accent-color); }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        th { text-align: left; color: #666; padding: 4px; position: sticky; top: 0; background: white; }
+        th { text-align: left; color: #666; padding: 4px; position: sticky; top: 0; background: white; z-index: 1;}
         td { padding: 4px; border-bottom: 1px solid #f0f0f0; }
         
-        .progress-bar-bg { width: 100%; background: #eee; height: 5px; border-radius: 3px; margin-top: 3px; }
+        .progress-bar-bg { width: 100%; background: #eee; height: 4px; border-radius: 3px; margin-top: 2px; }
         .progress-bar-fill { height: 100%; border-radius: 3px; }
         
-        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; display: inline-block;}
         .status-pill.multable { background: #fee2e2; color: #991b1b; }
         .status-pill.normal { background: #d1fae5; color: #065f46; }
 
-        /* CALENDARIO & ALERTAS */
         .calendar-mini { width: 100%; text-align: center; font-size: 0.7rem; }
-        .calendar-mini td:hover { background: #eee; border-radius: 50%; cursor: pointer; }
+        .calendar-mini td { padding: 2px; }
         .calendar-mini .active { background: var(--accent-color); color: white; border-radius: 50%; }
         
-        .alert-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #fff5f5; border-left: 3px solid var(--danger-color); margin-bottom: 5px; font-size: 0.75rem; }
+        .alert-item { display: flex; align-items: center; gap: 8px; padding: 6px; background: #fff5f5; border-left: 3px solid var(--danger-color); margin-bottom: 4px; font-size: 0.75rem; }
 
-        /* LAYOUT CENTRAL */
-        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .chart-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            /* Importante: No dejar que el grid se adapte al contenido */
+            min-height: 200px; 
+        }
 
     </style>
 </head>
@@ -150,16 +169,16 @@
         <div class="filters">
             <select id="zonaFilter"><option>Zonal: Todas</option><option>Valdivia</option><option>Osorno</option></select>
             <select id="brigadaFilter"><option>Brigada: Todas</option><option>Liviana</option><option>Pesada</option></select>
-            <button class="action-btn">Levantar Incidencia +</button>
+            <button class="action-btn">Incidencia +</button>
         </div>
     </div>
 
     <!-- KPI -->
     <div class="kpi-container">
-        <div class="kpi-card blue"><div class="kpi-value">446</div><div class="kpi-label">Tareas Asignadas</div></div>
-        <div class="kpi-card green"><div class="kpi-value">106.9%</div><div class="kpi-label">Eficiencia Op.</div></div>
+        <div class="kpi-card blue"><div class="kpi-value">446</div><div class="kpi-label">Asignadas</div></div>
+        <div class="kpi-card green"><div class="kpi-value">107%</div><div class="kpi-label">Eficiencia</div></div>
         <div class="kpi-card orange"><div class="kpi-value">26</div><div class="kpi-label">Prioritarios</div></div>
-        <div class="kpi-card blue"><div class="kpi-value">231</div><div class="kpi-label">En Bandeja</div></div>
+        <div class="kpi-card blue"><div class="kpi-value">231</div><div class="kpi-label">Bandeja</div></div>
         <div class="kpi-card red"><div class="kpi-value">25</div><div class="kpi-label">Índice PT</div></div>
         <div class="kpi-card blue"><div class="kpi-value">21.6</div><div class="kpi-label">Días Prom.</div></div>
     </div>
@@ -170,29 +189,30 @@
         <!-- IZQUIERDA -->
         <div class="col-left">
             <div class="card">
-                <div class="card-header"><i class="fa-solid fa-triangle-exclamation"></i> Fallas Pendientes</div>
+                <div class="card-header"><i class="fa-solid fa-triangle-exclamation"></i> Pendientes</div>
                 <div class="list-item"><span>Valdivia</span> <span class="badge red">28</span></div>
                 <div class="list-item"><span>Pto. Montt</span> <span class="badge red">23</span></div>
                 <div class="list-item"><span>Osorno</span> <span class="badge orange">13</span></div>
             </div>
 
             <div class="card">
-                <div class="card-header">Complejidad Operacional</div>
-                <!-- WRAPPER QUE SOLUCIONA EL BUCLE -->
-                <div class="chart-wrapper h-150">
+                <div class="card-header">Complejidad</div>
+                <div class="fixed-chart-height-small">
                     <canvas id="gaugeChart"></canvas>
                 </div>
-                <div style="text-align: center; color: orange; font-weight: bold; margin-top: -30px;">MEDIA-ALTA</div>
+                <div style="text-align: center; color: orange; font-weight: bold; margin-top: -30px; font-size: 0.8rem;">MEDIA-ALTA</div>
             </div>
 
             <div class="card" style="flex: 1;">
-                <div class="card-header">Estado Brigadas</div>
+                <div class="card-header">Brigadas</div>
                 <table>
-                    <thead><tr><th>Brigada</th><th>Efic.</th><th>Ocup.</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Efic.</th><th>Oc.</th></tr></thead>
                     <tbody>
-                        <tr><td>BBOO 2157</td><td>0%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:#ccc"></div></div></td><td>0%</td></tr>
-                        <tr><td>BBOO T99</td><td>31%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:31%; background:#dc3545"></div></div></td><td>12%</td></tr>
-                        <tr><td>BBOO 2092</td><td>98%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:98%; background:#28a745"></div></div></td><td>88%</td></tr>
+                        <tr><td>2157</td><td>0%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:#ccc"></div></div></td><td>0%</td></tr>
+                        <tr><td>T99</td><td>31%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:31%; background:#dc3545"></div></div></td><td>12%</td></tr>
+                        <tr><td>2092</td><td>98%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:98%; background:#28a745"></div></div></td><td>88%</td></tr>
+                        <tr><td>T59</td><td>65%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:65%; background:#ffc107"></div></div></td><td>50%</td></tr>
+                        <tr><td>1102</td><td>80%<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%; background:#28a745"></div></div></td><td>75%</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -202,22 +222,22 @@
         <div class="col-center">
             <div class="chart-row">
                 <div class="card">
-                    <div class="card-header">Tiempo Improductivo</div>
-                    <!-- WRAPPER FUNDAMENTAL -->
-                    <div class="chart-wrapper h-150">
+                    <div class="card-header">Improductivo (min)</div>
+                    <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
+                    <div class="fixed-chart-height">
                         <canvas id="barChart"></canvas>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Distribución Tareas</div>
-                    <!-- WRAPPER FUNDAMENTAL -->
-                    <div class="chart-wrapper h-150">
+                    <div class="card-header">Distribución</div>
+                    <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
+                    <div class="fixed-chart-height">
                         <canvas id="doughnutChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="card" style="flex: 1; max-height: 300px;">
+            <div class="card" style="flex: 1;">
                 <div class="card-header">Minuta Comercial</div>
                 <div style="overflow-y: auto;">
                     <table>
@@ -227,13 +247,14 @@
                             <tr><td>0018732</td><td>Contrato BT1</td><td><span class="badge orange">9</span></td><td><span class="status-pill multable">Riesgo</span></td></tr>
                             <tr><td>0018796</td><td>Conexión</td><td><span class="badge" style="background:#007bff">3</span></td><td><span class="status-pill normal">Normal</span></td></tr>
                             <tr><td>0018811</td><td>Desc. Solicitud</td><td>2</td><td><span class="status-pill normal">Normal</span></td></tr>
+                            <tr><td>0018900</td><td>Empalme</td><td>1</td><td><span class="status-pill normal">Normal</span></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="card" style="flex: 1;">
-                <div class="card-header">Gestión y Análisis PT</div>
+            <div class="card" style="height: 150px;">
+                <div class="card-header">Gestión PT</div>
                 <div style="overflow-y: auto;">
                     <table>
                         <thead><tr><th>Tipo</th><th>Caso</th><th>Inicio</th><th>Jerarquía</th></tr></thead>
@@ -249,7 +270,7 @@
         <!-- DERECHA -->
         <div class="col-right">
             <div class="card">
-                <div class="card-header">Calendario PT - Dic 25</div>
+                <div class="card-header">Dic 2025</div>
                 <table class="calendar-mini">
                     <thead><tr><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th><th>S</th><th>D</th></tr></thead>
                     <tbody>
@@ -262,20 +283,20 @@
 
             <div class="card">
                 <div class="card-header">Alertas</div>
-                <div class="alert-item"><i class="fa-solid fa-clock"></i><div><strong>Próx. a Vencer</strong><br>49 casos</div></div>
-                <div class="alert-item" style="border-left-color:var(--accent-color)"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-color)"></i><div><strong>Tareas Críticas</strong><br>15 brigadas</div></div>
+                <div class="alert-item"><i class="fa-solid fa-clock"></i><div><strong>Vencimiento</strong><br>49 casos</div></div>
+                <div class="alert-item" style="border-left-color:var(--accent-color)"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-color)"></i><div><strong>Críticos</strong><br>15 asignados</div></div>
             </div>
 
             <div class="card">
-                <div class="card-header">PT x Zona Crítica</div>
-                <div class="list-item"><span>Santa Barbara</span> <strong>4</strong></div>
+                <div class="card-header">Zona Crítica</div>
+                <div class="list-item"><span>Sta Barbara</span> <strong>4</strong></div>
                 <div class="list-item"><span>Lonquimay</span> <strong>3</strong></div>
             </div>
 
-            <div class="card" style="flex: 1; min-height: 180px;">
-                <div class="card-header">Concurrencia Fallas</div>
-                <!-- WRAPPER PARA EL GRÁFICO FINAL -->
-                <div class="chart-wrapper">
+            <div class="card" style="flex: 1;">
+                <div class="card-header">Concurrencia</div>
+                <!-- AQUÍ ESTÁ LA SOLUCIÓN: Altura forzada -->
+                <div class="fixed-chart-height">
                     <canvas id="concurrenceChart"></canvas>
                 </div>
             </div>
@@ -284,56 +305,64 @@
 
     <!-- SCRIPTS -->
     <script>
-        // CONFIGURACIÓN GLOBAL PARA EVITAR ERRORES DE REDIMENSIONAMIENTO
-        Chart.defaults.maintainAspectRatio = false; // CRUCIAL: Permite que el gráfico llene el wrapper
+        // CONFIGURACIÓN PARA QUE LOS GRÁFICOS NO REDIMENSIONEN EL CONTENEDOR
+        Chart.defaults.maintainAspectRatio = false; // El gráfico se estira para llenar el div fijo
         Chart.defaults.responsive = true;
         Chart.defaults.font.family = "'Segoe UI', sans-serif";
         Chart.defaults.font.size = 10;
         Chart.defaults.color = '#666';
 
-        // 1. Gauge (Complejidad)
+        // 1. Gauge
         new Chart(document.getElementById('gaugeChart'), {
             type: 'doughnut',
             data: {
                 labels: ['Bajo', 'Medio', 'Alto'],
-                datasets: [{ data: [30, 40, 30], backgroundColor: ['#28a745', '#ffc107', '#dc3545'], borderWidth: 0, circumference: 180, rotation: 270, cutout: '75%' }]
+                datasets: [{ data: [30, 40, 30], backgroundColor: ['#28a745', '#ffc107', '#dc3545'], borderWidth: 0, circumference: 180, rotation: 270, cutout: '70%' }]
             },
             options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, aspectRatio: 2 }
         });
 
-        // 2. Barras (Tiempo Improductivo)
+        // 2. Bar Chart
         new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
-                labels: ['Traslado', 'Espera Mat.', 'Otros'],
+                labels: ['Traslado', 'Material', 'Otros'],
                 datasets: [{ label: 'Min', data: [99, 30, 29], backgroundColor: '#003366', borderRadius: 4 }]
             },
             options: { 
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: {display:false} }, x: { grid: {display:false} } }
+                scales: { 
+                    y: { beginAtZero: true, grid: {display:false}, ticks: {display: true} }, 
+                    x: { grid: {display:false} } 
+                },
+                layout: { padding: 0 }
             }
         });
 
-        // 3. Donut (Distribución)
+        // 3. Doughnut
         new Chart(document.getElementById('doughnutChart'), {
             type: 'doughnut',
             data: {
                 labels: ['Repo', 'Reg', 'Prio'],
                 datasets: [{ data: [93, 62, 26], backgroundColor: ['#e83e8c', '#003366', '#fd7e14'], borderWidth: 0 }]
             },
-            options: { plugins: { legend: { position: 'right', labels: { boxWidth: 8 } } }, cutout: '60%' }
+            options: { 
+                plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: {size: 9} } } }, 
+                cutout: '55%',
+                layout: { padding: 5 }
+            }
         });
 
-        // 4. Concurrencia (Este era el que más problemas daba)
+        // 4. Concurrence
         new Chart(document.getElementById('concurrenceChart'), {
             type: 'bar',
             data: {
-                labels: ['Osorno', 'Cabrero', 'Vald.', 'Temuco'],
+                labels: ['Oso', 'Cab', 'Val', 'Tem'],
                 datasets: [{ label: 'Fallas', data: [12, 8, 5, 3], backgroundColor: '#003366' }]
             },
             options: { 
                 plugins: { legend: { display: false } },
-                maintainAspectRatio: false, // Asegurado aquí también
+                scales: { y: { beginAtZero: true } }
             }
         });
     </script>
